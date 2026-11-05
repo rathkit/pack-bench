@@ -40,6 +40,10 @@ export const report = (res) => {
       ` Run on ${res.date.slice(0, 10)} in the pack-bench container, bench commit \`${String(res.bench.commit).slice(0, 7)}\`, image \`${String(res.bench.imageId).replace('sha256:', '').slice(0, 12)}\`; tools started through ${res.bench.launch === 'direct' ? 'their own executables' : "the package manager's launchers"}; ${res.runs} timed runs, outputs on a RAM disk.`,
   );
   parts.push('');
+  parts.push(
+    `Reproduce: in [rathkit/pack-bench](https://github.com/rathkit/pack-bench) at commit \`${String(res.bench.commit).slice(0, 7)}\`, build Pack at commit \`${String(res.pack.commit).slice(0, 7)}\` with \`container/build-pack.sh\`, then run \`container/run.sh --pack-bin <that binary> -- ${res.argv.join(' ')}\`.`,
+  );
+  parts.push('');
   parts.push('## Time (median ms, lower is better)');
   for (const mode of res.modes) parts.push('', `${modeTitles[mode] ?? mode}:`, '', table({ mode, of: (r) => r.med.toFixed(0) }));
   if (tools.includes('rathkit')) {
@@ -67,7 +71,7 @@ if (args.includes('--self-test')) {
   const found = problems(fixture, { noGit: true });
   if (found.length) throw new Error(`fixture is not valid: ${found.join('; ')}`);
   const md = report(fixture);
-  for (const expect of ['| | Rathkit Pack | esbuild |', '| TypeScript compiler |', 'failed', 'Geometric mean', 'bench commit', '## Output size']) {
+  for (const expect of ['| | Rathkit Pack | esbuild |', '| TypeScript compiler |', 'failed', 'Geometric mean', 'bench commit', 'Reproduce: in', '## Output size']) {
     if (!md.includes(expect)) throw new Error(`report lacks: ${expect}`);
   }
   console.log('report: self-test ok');
