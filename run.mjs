@@ -1,17 +1,23 @@
 // Compares bundlers on the same inputs: wall time of the whole command (start-up included), peak memory, output
 // size, and whether the output runs and prints the same thing.
 //
-//   pnpm install && node generate.mjs && node run.mjs [options] [workload...]
+//   container/run.sh --pack-bin PATH -- [options] [workload...]     (the only way a published figure is made)
 //
 //   --runs N          timed runs per case, after one warm-up run (default 7)
 //   --tools a,b,c     rathkit, esbuild, rolldown, rspack, vite, parcel2, parcel3 (default rathkit; the others are for development only)
 //   --env production  define process.env.NODE_ENV as "production" in every tool (the default), or `none` for no define
 //   --modes a,b       plain, minify, minify+map (default all three)
 //   --markdown        also print the tables as Markdown
+//   --work DIR        where outputs and tool configs are written (default: next to this file); the container gives it a tmpfs
+//   --results FILE    where results.json is written (default: results.json next to this file)
+//   --list-tools      print each tool's version and executable, then exit
 //
 // RATHKIT_PACK_BIN names the rathkit-pack binary (default ../target/release/rkp).
+// PACK_COMMIT, BENCH_COMMIT, IMAGE_ID and HOST_NOTE (set by container/run.sh) go into results.json.
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, writeFileSync, readFileSync, readdirSync, statSync, rmSync, existsSync, renameSync, realpathSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import os from 'node:os';
 import { join, dirname, basename, extname } from 'node:path';
 import { createRequire } from 'node:module';
 import { gzipSync } from 'node:zlib';
@@ -31,10 +37,15 @@ const option = (name, fallback) => {
 };
 const runs = Number(option('--runs', 7));
 const env = option('--env', 'production');
+const workDir = option('--work', here);
+const resultsFile = option('--results', join(here, 'results.json'));
+const listTools = args.includes('--list-tools') && args.splice(args.indexOf('--list-tools'), 1).length > 0;
 const markdown = args.includes('--markdown') && args.splice(args.indexOf('--markdown'), 1).length > 0;
 const allModes = { plain: { minify: false, map: false }, minify: { minify: true, map: false }, 'minify+map': { minify: true, map: true } };
 const modeNames = option('--modes', Object.keys(allModes).join(',')).split(',');
 const production = env === 'production';
+// How each tool is started. 'shim' is the package manager's launcher in node_modules/.bin (it starts Node first, then the tool); recorded in results.json.
+const launch = 'shim';
 
 const workloads = {
   ts5: 'inputs/ts5.js',
@@ -50,6 +61,8 @@ const runnable = new Set(['ts5', 'react', 'rxjs', 'app1500', 'tsapp500']);
 const externals = [...builtinModules, ...builtinModules.map((m) => 'node:' + m)];
 const NODE_ENV = '"production"';
 
+
+const pkgVersion = (name) => JSON.parse(readFileSync(join(here, 'node_modules', name, 'package.json'), 'utf8')).version;
 
 // Parcel 3 is a native executable that npm installs as a platform package; the `parcel3` launcher is a Node script that starts it,
 // and timing it would add a Node start-up, so the executable is run directly.
@@ -103,10 +116,31 @@ const tools = {
   },
 };
 const selected = option('--tools', 'rathkit').split(',');
+const toolVersions = () => ({
+  esbuild: pkgVersion('esbuild'),
+  rolldown: pkgVersion('rolldown'),
+  rspack: `${pkgVersion('@rspack/core')} (cli ${pkgVersion('@rspack/cli')})`,
+  vite: pkgVersion('vite'),
+  parcel2: pkgVersion('parcel2'),
+  parcel3: pkgVersion('parcel3'),
+});
+if (listTools) {
+  const versions = toolVersions();
+  const executables = { esbuild: bin('esbuild'), rolldown: bin('rolldown'), rspack: bin('rspack'), vite: bin('vite'), parcel2: join(here, 'node_modules/parcel2/lib/bin.js'), parcel3: parcel3Binary() };
+  for (const [tool, version] of Object.entries(versions)) {
+    if (!existsSync(executables[tool])) throw new Error(`${tool}: no executable at ${executables[tool]}`);
+    console.log(`${tool.padEnd(8)} ${version}  ${executables[tool]}`);
+  }
+  console.log(`node     ${process.version}`);
+  process.exit(0);
+}
 // What is left after the options are the workloads to run (all of them when none are named).
 const only = args.filter((a) => !a.startsWith('--'));
 
-for (const need of [existsSync(RK) ? null : `the rathkit-pack binary (cargo build --release, or RATHKIT_PACK_BIN): ${RK}`, existsSync(join(here, 'node_modules')) ? null : 'pnpm install (in bench/)', existsSync(join(here, 'inputs/generated')) ? null : 'node generate.mjs']) {
+mkdirSync(workDir, { recursive: true });
+if (process.env.HOME) mkdirSync(process.env.HOME, { recursive: true });
+
+for (const need of [existsSync(RK) ? null : `the rathkit-pack binary (cargo build --release, or RATHKIT_PACK_BIN): ${RK}`, existsSync(join(here, 'node_modules')) ? null : 'pnpm install', existsSync(join(here, 'inputs/generated')) ? null : 'node generate.mjs']) {
   if (need) {
     console.error(`missing: ${need}`);
     process.exit(2);
@@ -127,6 +161,38 @@ const sizeOf = (dir) => {
   return { bytes: data.length, gzip: gzipSync(data).length };
 };
 
+const readFirst = (file) => {
+  try {
+    return readFileSync(file, 'utf8').trim();
+  } catch {
+    return null;
+  }
+};
+const readLoad = () => (readFirst('/proc/loadavg') ?? '').split(' ').slice(0, 3).map(Number);
+// Everything a published figure has to say about where and how it was made (checked by tools/check-results.mjs).
+const metadata = () => {
+  const rk = existsSync(RK) ? { version: spawnSync(RK, ['--version'], { encoding: 'utf8' }).stdout.trim(), sha256: createHash('sha256').update(readFileSync(RK)).digest('hex') } : { version: null, sha256: null };
+  const mounts = readFirst('/proc/self/mountinfo') ?? '';
+  const rootLine = mounts.split('\n').map((l) => l.split(' ')).find((f) => f[4] === '/');
+  const cpu = (readFirst('/proc/cpuinfo') ?? '').split('\n').find((l) => l.startsWith('model name'));
+  return {
+    date: new Date().toISOString(),
+    pack: { ...rk, commit: process.env.PACK_COMMIT ?? null },
+    bench: { commit: process.env.BENCH_COMMIT ?? null, imageId: process.env.IMAGE_ID ?? null, launch, rootfs: rootLine && rootLine[5].split(',').includes('ro') ? 'read-only' : 'writable-layer' },
+    node: process.version,
+    tools: toolVersions(),
+    machine: {
+      cpu: cpu ? cpu.split(':')[1].trim() : null,
+      logicalCpus: os.availableParallelism(),
+      cpuset: readFirst('/sys/fs/cgroup/cpuset.cpus.effective'),
+      memoryLimit: readFirst('/sys/fs/cgroup/memory.max'),
+      kernel: os.release(),
+      note: process.env.HOST_NOTE ?? '',
+    },
+  };
+};
+const loadBefore = readLoad();
+
 const rows = [];
 for (const [name, entry] of Object.entries(workloads)) {
   if (only.length && !only.includes(name)) continue;
@@ -134,7 +200,7 @@ for (const [name, entry] of Object.entries(workloads)) {
     const { minify, map } = allModes[mode];
     let reference = null;
     for (const tool of selected) {
-      const dir = join(here, 'out', `${name}-${mode}-${tool}`);
+      const dir = join(workDir, 'out', `${name}-${mode}-${tool}`);
       rmSync(dir, { recursive: true, force: true });
       mkdirSync(dir, { recursive: true });
       const out = join(dir, 'out.mjs');
@@ -172,7 +238,9 @@ for (const [name, entry] of Object.entries(workloads)) {
     }
   }
 }
-writeFileSync(join(here, 'results.json'), JSON.stringify({ env, runs, node: process.version, rows }, null, 1));
+const loadAfter = readLoad();
+mkdirSync(dirname(resultsFile), { recursive: true });
+writeFileSync(resultsFile, JSON.stringify({ schema: 2, ...metadata(), load: { before: loadBefore, after: loadAfter }, env, runs, modes: modeNames, argv: process.argv.slice(2), rows }, null, 1));
 
 // ---- tables ----
 const names = Object.keys(workloads).filter((w) => rows.some((r) => r.name === w));

@@ -1,0 +1,45 @@
+name: smoke
+
+# Shared runners, one run per case: this shows that the recipe works end to end. The numbers are NOT publishable and this
+# workflow is NEVER a required check. Figures are made only with container/run.sh --publish on a quiet machine.
+
+on:
+  workflow_dispatch:
+    inputs:
+      pack_ref:
+        description: The rathkit/pack commit, branch or tag to build
+        default: main
+  schedule:
+    - cron: "23 6 * * 1"
+
+permissions: {}
+
+jobs:
+  smoke:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: rathkit/pack
+          ref: ${{ inputs.pack_ref || 'main' }}
+          path: pack
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Build Pack offline in the pinned Rust image
+        run: container/build-pack.sh pack "$(git -C pack rev-parse HEAD)" "$RUNNER_TEMP/rkp" "$RUNNER_TEMP"
+      - name: One run of every tool
+        run: container/run.sh --pack-bin "$RUNNER_TEMP/rkp/rkp" -- --runs 1
+        env:
+          HOST_NOTE: GitHub-hosted runner, smoke test, not for publication
+      - run: node tools/check-results.mjs "$(ls results/*.json | head -1)" --smoke
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: smoke-results
+          path: results/
+          retention-days: 14

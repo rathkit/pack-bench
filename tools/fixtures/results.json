@@ -1,0 +1,636 @@
+{
+ "schema": 2,
+ "date": "2026-11-05T00:00:00.000Z",
+ "pack": {
+  "version": "rkp 0.0.0-fixture",
+  "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "commit": "1111111111111111111111111111111111111111"
+ },
+ "bench": {
+  "commit": "2222222222222222222222222222222222222222",
+  "imageId": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+  "launch": "shim",
+  "rootfs": "read-only"
+ },
+ "node": "v26.12.0",
+ "tools": {
+  "esbuild": "0.0.0",
+  "rolldown": "0.0.0",
+  "rspack": "0.0.0 (cli 0.0.0)",
+  "vite": "0.0.0",
+  "parcel2": "0.0.0",
+  "parcel3": "0.0.0"
+ },
+ "machine": {
+  "cpu": "Fixture CPU",
+  "logicalCpus": 8,
+  "cpuset": "2-9",
+  "memoryLimit": "12884901888",
+  "kernel": "0.0.0",
+  "note": "fixture"
+ },
+ "load": {
+  "before": [
+   0.1,
+   0.1,
+   0.1
+  ],
+  "after": [
+   0.2,
+   0.1,
+   0.1
+  ]
+ },
+ "env": "production",
+ "runs": 7,
+ "modes": [
+  "plain",
+  "minify",
+  "minify+map"
+ ],
+ "argv": [
+  "--tools",
+  "rathkit"
+ ],
+ "rows": [
+  {
+   "name": "ts5",
+   "mode": "plain",
+   "tool": "rathkit",
+   "min": 198,
+   "med": 200,
+   "rss": 100,
+   "size": {
+    "bytes": 3000000,
+    "gzip": 900000
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "ts5",
+   "mode": "plain",
+   "tool": "esbuild",
+   "min": 428,
+   "med": 430,
+   "rss": 200,
+   "size": {
+    "bytes": 3100000,
+    "gzip": 950000
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "ts5",
+   "mode": "plain",
+   "tool": "parcel2",
+   "min": null,
+   "med": null,
+   "rss": null,
+   "size": null,
+   "runs": "-",
+   "failed": "assertion"
+  },
+  {
+   "name": "ts5",
+   "mode": "plain",
+   "tool": "rolldown",
+   "min": 858,
+   "med": 860,
+   "rss": 300,
+   "size": {
+    "bytes": 3000000,
+    "gzip": 900000
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "ts5",
+   "mode": "plain",
+   "tool": "rspack",
+   "min": 858,
+   "med": 860,
+   "rss": 300,
+   "size": {
+    "bytes": 3000000,
+    "gzip": 900000
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "ts5",
+   "mode": "plain",
+   "tool": "vite",
+   "min": 858,
+   "med": 860,
+   "rss": 300,
+   "size": {
+    "bytes": 3000000,
+    "gzip": 900000
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "ts5",
+   "mode": "plain",
+   "tool": "parcel3",
+   "min": 858,
+   "med": 860,
+   "rss": 300,
+   "size": {
+    "bytes": 3000000,
+    "gzip": 900000
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "react",
+   "mode": "plain",
+   "tool": "rathkit",
+   "min": 14,
+   "med": 16,
+   "rss": 100,
+   "size": {
+    "bytes": 3000000,
+    "gzip": 900000
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "react",
+   "mode": "plain",
+   "tool": "esbuild",
+   "min": 54,
+   "med": 56,
+   "rss": 200,
+   "size": {
+    "bytes": 3100000,
+    "gzip": 950000
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "react",
+   "mode": "plain",
+   "tool": "parcel2",
+   "min": 688,
+   "med": 690,
+   "rss": 500,
+   "size": {
+    "bytes": 580000,
+    "gzip": 175000
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "react",
+   "mode": "plain",
+   "tool": "rolldown",
+   "min": 110,
+   "med": 112,
+   "rss": 300,
+   "size": {
+    "bytes": 3000000,
+    "gzip": 900000
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "react",
+   "mode": "plain",
+   "tool": "rspack",
+   "min": 110,
+   "med": 112,
+   "rss": 300,
+   "size": {
+    "bytes": 3000000,
+    "gzip": 900000
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "react",
+   "mode": "plain",
+   "tool": "vite",
+   "min": 110,
+   "med": 112,
+   "rss": 300,
+   "size": {
+    "bytes": 3000000,
+    "gzip": 900000
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "react",
+   "mode": "plain",
+   "tool": "parcel3",
+   "min": 110,
+   "med": 112,
+   "rss": 300,
+   "size": {
+    "bytes": 3000000,
+    "gzip": 900000
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "ts5",
+   "mode": "minify",
+   "tool": "rathkit",
+   "min": 198,
+   "med": 200,
+   "rss": 100,
+   "size": {
+    "bytes": 3000000,
+    "gzip": 900000
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "ts5",
+   "mode": "minify",
+   "tool": "esbuild",
+   "min": 428,
+   "med": 430,
+   "rss": 200,
+   "size": {
+    "bytes": 3100000,
+    "gzip": 950000
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "ts5",
+   "mode": "minify",
+   "tool": "parcel2",
+   "min": null,
+   "med": null,
+   "rss": null,
+   "size": null,
+   "runs": "-",
+   "failed": "assertion"
+  },
+  {
+   "name": "ts5",
+   "mode": "minify",
+   "tool": "rolldown",
+   "min": 858,
+   "med": 860,
+   "rss": 300,
+   "size": {
+    "bytes": 3000000,
+    "gzip": 900000
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "ts5",
+   "mode": "minify",
+   "tool": "rspack",
+   "min": 858,
+   "med": 860,
+   "rss": 300,
+   "size": {
+    "bytes": 3000000,
+    "gzip": 900000
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "ts5",
+   "mode": "minify",
+   "tool": "vite",
+   "min": 858,
+   "med": 860,
+   "rss": 300,
+   "size": {
+    "bytes": 3000000,
+    "gzip": 900000
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "ts5",
+   "mode": "minify",
+   "tool": "parcel3",
+   "min": 858,
+   "med": 860,
+   "rss": 300,
+   "size": {
+    "bytes": 3000000,
+    "gzip": 900000
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "react",
+   "mode": "minify",
+   "tool": "rathkit",
+   "min": 14,
+   "med": 16,
+   "rss": 100,
+   "size": {
+    "bytes": 3000000,
+    "gzip": 900000
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "react",
+   "mode": "minify",
+   "tool": "esbuild",
+   "min": 54,
+   "med": 56,
+   "rss": 200,
+   "size": {
+    "bytes": 3100000,
+    "gzip": 950000
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "react",
+   "mode": "minify",
+   "tool": "parcel2",
+   "min": 688,
+   "med": 690,
+   "rss": 500,
+   "size": {
+    "bytes": 580000,
+    "gzip": 175000
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "react",
+   "mode": "minify",
+   "tool": "rolldown",
+   "min": 110,
+   "med": 112,
+   "rss": 300,
+   "size": {
+    "bytes": 3000000,
+    "gzip": 900000
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "react",
+   "mode": "minify",
+   "tool": "rspack",
+   "min": 110,
+   "med": 112,
+   "rss": 300,
+   "size": {
+    "bytes": 3000000,
+    "gzip": 900000
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "react",
+   "mode": "minify",
+   "tool": "vite",
+   "min": 110,
+   "med": 112,
+   "rss": 300,
+   "size": {
+    "bytes": 3000000,
+    "gzip": 900000
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "react",
+   "mode": "minify",
+   "tool": "parcel3",
+   "min": 110,
+   "med": 112,
+   "rss": 300,
+   "size": {
+    "bytes": 3000000,
+    "gzip": 900000
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "ts5",
+   "mode": "minify+map",
+   "tool": "rathkit",
+   "min": 198,
+   "med": 200,
+   "rss": 100,
+   "size": {
+    "bytes": 3000000,
+    "gzip": 900000
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "ts5",
+   "mode": "minify+map",
+   "tool": "esbuild",
+   "min": 428,
+   "med": 430,
+   "rss": 200,
+   "size": {
+    "bytes": 3100000,
+    "gzip": 950000
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "ts5",
+   "mode": "minify+map",
+   "tool": "parcel2",
+   "min": null,
+   "med": null,
+   "rss": null,
+   "size": null,
+   "runs": "-",
+   "failed": "assertion"
+  },
+  {
+   "name": "ts5",
+   "mode": "minify+map",
+   "tool": "rolldown",
+   "min": 858,
+   "med": 860,
+   "rss": 300,
+   "size": {
+    "bytes": 3000000,
+    "gzip": 900000
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "ts5",
+   "mode": "minify+map",
+   "tool": "rspack",
+   "min": 858,
+   "med": 860,
+   "rss": 300,
+   "size": {
+    "bytes": 3000000,
+    "gzip": 900000
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "ts5",
+   "mode": "minify+map",
+   "tool": "vite",
+   "min": 858,
+   "med": 860,
+   "rss": 300,
+   "size": {
+    "bytes": 3000000,
+    "gzip": 900000
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "ts5",
+   "mode": "minify+map",
+   "tool": "parcel3",
+   "min": 858,
+   "med": 860,
+   "rss": 300,
+   "size": {
+    "bytes": 3000000,
+    "gzip": 900000
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "react",
+   "mode": "minify+map",
+   "tool": "rathkit",
+   "min": 14,
+   "med": 16,
+   "rss": 100,
+   "size": {
+    "bytes": 3000000,
+    "gzip": 900000
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "react",
+   "mode": "minify+map",
+   "tool": "esbuild",
+   "min": 54,
+   "med": 56,
+   "rss": 200,
+   "size": {
+    "bytes": 3100000,
+    "gzip": 950000
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "react",
+   "mode": "minify+map",
+   "tool": "parcel2",
+   "min": 688,
+   "med": 690,
+   "rss": 500,
+   "size": {
+    "bytes": 580000,
+    "gzip": 175000
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "react",
+   "mode": "minify+map",
+   "tool": "rolldown",
+   "min": 110,
+   "med": 112,
+   "rss": 300,
+   "size": {
+    "bytes": 3000000,
+    "gzip": 900000
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "react",
+   "mode": "minify+map",
+   "tool": "rspack",
+   "min": 110,
+   "med": 112,
+   "rss": 300,
+   "size": {
+    "bytes": 3000000,
+    "gzip": 900000
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "react",
+   "mode": "minify+map",
+   "tool": "vite",
+   "min": 110,
+   "med": 112,
+   "rss": 300,
+   "size": {
+    "bytes": 3000000,
+    "gzip": 900000
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "react",
+   "mode": "minify+map",
+   "tool": "parcel3",
+   "min": 110,
+   "med": 112,
+   "rss": 300,
+   "size": {
+    "bytes": 3000000,
+    "gzip": 900000
+   },
+   "runs": "same",
+   "failed": null
+  }
+ ]
+}

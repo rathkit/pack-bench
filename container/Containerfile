@@ -1,0 +1,37 @@
+# syntax=docker/dockerfile:1@sha256:4edf897a3ffa55b89f906fc8cc78afdb3f1834cc9c7083565e611a8a7d5fe99e
+# The benchmark image. Everything third-party is installed here, from the lockfile only, with no install scripts.
+# The run itself has no network (container/run.sh). Rebuild from a clean checkout; the image ID goes into every results.json.
+# To bump a pinned digest: docker buildx imagetools inspect <image:tag> --format '{{json .Manifest.Digest}}', then rerun the benchmark.
+# node:26.12.0-trixie-slim (Debian 13, glibc 2.41: the Pack binary needs glibc 2.39 or newer, so bookworm will not do)
+FROM docker.io/library/node:26.12.0-trixie-slim@sha256:e556a144463cc8dc53afe8de6d2fa0db5c132fd39ffa232c17641bd40df2bf11
+
+# SNAPSHOT empty (CI): the regular mirror. Set (container/run.sh --publish): a fixed snapshot.debian.org date, such as 20261105T000000Z.
+# TIME_VERSION pins the package either way.
+ARG SNAPSHOT=
+ARG TIME_VERSION=1.9-0.2
+RUN if [ -n "$SNAPSHOT" ]; then \
+      printf 'deb [check-valid-until=no] http://snapshot.debian.org/archive/debian/%s trixie main\n' "$SNAPSHOT" > /etc/apt/sources.list \
+      && rm -f /etc/apt/sources.list.d/debian.sources; fi \
+ && apt-get update && apt-get install -y --no-install-recommends "time=$TIME_VERSION" ca-certificates \
+ && rm -rf /var/lib/apt/lists/*
+
+# pnpm v12.14.0, the standalone build, checked against GitHub's published digest. Never corepack.
+# (x64 only for now; add the arm64 file, cfc780b9e690549e6633e1045fb1fb6ef84e390711e2099e6ccbae91c32456ea, when an arm64 run is wanted.)
+ADD --checksum=sha256:3910c3852136bed5bc1511b9137a45fd4357ed6b3970d9d08893641e9005867e \
+    https://github.com/pnpm/pnpm/releases/download/v12.14.0/pnpm-linux-x64.tar.gz /tmp/pnpm-x64.tar.gz
+RUN mkdir -p /opt/pnpm && tar -xzf /tmp/pnpm-x64.tar.gz -C /opt/pnpm && rm /tmp/pnpm-x64.tar.gz \
+ && ln -s "$(find /opt/pnpm -type f -name pnpm | head -1)" /usr/local/bin/pnpm && pnpm --version
+
+WORKDIR /bench
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+RUN pnpm install --frozen-lockfile --ignore-scripts && pnpm store prune
+COPY run.mjs generate.mjs ./
+COPY inputs/ inputs/
+COPY tools/ tools/
+# The generated workloads are deterministic, so they are made once, here, under /bench (Parcel reads `targets` from /bench/package.json).
+RUN node generate.mjs && chmod -R a+rX /bench
+ARG BENCH_COMMIT=unknown
+ENV BENCH_COMMIT=$BENCH_COMMIT
+LABEL org.opencontainers.image.source="https://github.com/rathkit/pack-bench" org.opencontainers.image.revision=$BENCH_COMMIT
+USER node
+ENTRYPOINT ["node", "/bench/run.mjs"]

@@ -1,0 +1,64 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions: {}
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    # Required by the ruleset under this name.
+    name: lockfile and container
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      # Node only, to run the checks below. Nothing is installed on the runner: the third-party tools are installed
+      # only inside the container, from the lockfile, with no install scripts (ignoreScripts in pnpm-workspace.yaml).
+      - uses: pnpm/setup@a0881977cd8ea73b1ed212236c99ca10dcc80cf4
+        with:
+          runtime: node@26
+          working-directory: .
+          install: false
+      - run: node --check run.mjs && node --check generate.mjs && node --check tools/report.mjs && node --check tools/check-results.mjs
+      - run: node tools/report.mjs --self-test
+      - run: sh -n container/run.sh && sh -n container/build-pack.sh
+      # The image builds from the pinned digests and the committed lockfile as it is; every tool answers with no network.
+      - run: docker build --build-arg BENCH_COMMIT="$GITHUB_SHA" -t pack-bench:ci -f container/Containerfile .
+      - run: git diff --exit-code pnpm-lock.yaml
+      - run: docker run --rm --network none --read-only --tmpfs /work --entrypoint node pack-bench:ci /bench/run.mjs --list-tools
+
+  hygiene:
+    name: secrets and words
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    env:
+      RATHKIT_DENYLIST: ${{ secrets.RATHKIT_DENYLIST }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      # Only Node is needed here (no install).
+      - uses: pnpm/setup@a0881977cd8ea73b1ed212236c99ca10dcc80cf4
+        with:
+          runtime: node@24
+          working-directory: .
+          install: false
+      - run: node tools/scan-secrets.test.mjs
+      - run: node tools/scan-secrets.mjs
+      - name: Word check
+        run: node tools/check-denylist.mjs
+        env:
+          CI: "true"
