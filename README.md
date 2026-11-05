@@ -31,8 +31,10 @@ benchmark, or `pnpm install`, outside it.
   run with `--no-cache`. Parcel 3 is run as its native executable. Without `--optimize` Parcel neither minifies nor scope-hoists.
 - **Other tools** use the options in `run.mjs` (for rspack, a config with `builtin:swc-loader` for TypeScript; for Vite,
   library mode), not tuned beyond that.
-- **Launch:** `launch` in the results says how each tool was started: `shim` (the package manager's launcher in
-  `node_modules/.bin`, which starts Node first) or `direct` (the tool's own executable). A published table says which.
+- **Launch:** every tool is started through its own entry point, never through the package manager's shell shim in
+  `node_modules/.bin` (which would add a shell and a Node start-up to its time): esbuild and Parcel 3 as their native
+  executables, and rolldown, rspack, Vite and Parcel 2 as `node <the package's bin file>`, so those four include Node's own
+  start-up. `launch` in the results records this (`direct`; `shim` is the older method).
 - **Cold:** every run is one fresh container (`--rm`), so no tool keeps a cache from one run to the next. The operating
   system's page cache is warm, because the single warm-up run is part of the method. Outputs go to a RAM disk, so disk speed is out of the timing for every tool alike.
 - **Workloads:** the TypeScript 5.9 compiler, three.js, lodash-es (`export *`), React with react-dom/server, an rxjs pipeline,

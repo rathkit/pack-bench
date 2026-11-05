@@ -25,7 +25,6 @@ import { fileURLToPath } from 'node:url';
 import { builtinModules } from 'node:module';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const bin = (n) => join(here, 'node_modules/.bin', n);
 const RK = process.env.RATHKIT_PACK_BIN ?? join(here, '..', 'target', 'release', 'rkp');
 
 const args = process.argv.slice(2);
@@ -44,8 +43,9 @@ const markdown = args.includes('--markdown') && args.splice(args.indexOf('--mark
 const allModes = { plain: { minify: false, map: false }, minify: { minify: true, map: false }, 'minify+map': { minify: true, map: true } };
 const modeNames = option('--modes', Object.keys(allModes).join(',')).split(',');
 const production = env === 'production';
-// How each tool is started. 'shim' is the package manager's launcher in node_modules/.bin (it starts Node first, then the tool); recorded in results.json.
-const launch = 'shim';
+// How each tool is started: 'direct' is the tool's own entry point (esbuild's and Parcel 3's native executables; `node <the package's bin file>` for the
+// Node tools), never the package manager's shell shim in node_modules/.bin, which would add a shell and a Node start-up to the time. Recorded in results.json.
+const launch = 'direct';
 
 const workloads = {
   ts5: 'inputs/ts5.js',
@@ -62,6 +62,15 @@ const externals = [...builtinModules, ...builtinModules.map((m) => 'node:' + m)]
 const NODE_ENV = '"production"';
 
 
+const pkgDir = (name) => realpathSync(join(here, 'node_modules', name));
+// The file a package's `bin` field names.
+const pkgBin = (name, binName) => {
+  const dir = pkgDir(name);
+  const field = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8')).bin;
+  return join(dir, typeof field === 'string' ? field : field[binName]);
+};
+// esbuild's native executable, from the platform package that sits next to esbuild (the install script that would link it is not run).
+const esbuildBinary = () => createRequire(join(pkgDir('esbuild'), 'package.json')).resolve(`@esbuild/${process.platform}-${process.arch}/bin/${process.platform === 'win32' ? 'esbuild.exe' : 'esbuild'}`);
 const pkgVersion = (name) => JSON.parse(readFileSync(join(here, 'node_modules', name, 'package.json'), 'utf8')).version;
 
 // Parcel 3 is a native executable that npm installs as a platform package; the `parcel3` launcher is a Node script that starts it,
@@ -88,15 +97,15 @@ const parcelCase = ({ entry, minify, map, dir }) => ({
 
 const tools = {
   rathkit: ({ entry, out, minify, map }) => ({ cmd: RK, args: ['bundle', entry, '--outfile', out, '--no-config', ...(production ? ['--define', `process.env.NODE_ENV=${NODE_ENV}`] : []), ...(minify ? ['--minify'] : []), ...(map ? ['--sourcemap'] : [])] }),
-  esbuild: ({ entry, out, minify, map }) => ({ cmd: bin('esbuild'), args: [entry, '--bundle', '--format=esm', '--platform=node', `--outfile=${out}`, '--log-level=error', '--banner:js=import { createRequire as __rkRequire } from "node:module"; import { fileURLToPath as __rkPath } from "node:url"; import { dirname as __rkDir } from "node:path"; const require = __rkRequire(import.meta.url), __filename = __rkPath(import.meta.url), __dirname = __rkDir(__filename);', ...(production ? [`--define:process.env.NODE_ENV=${NODE_ENV}`] : []), ...(minify ? ['--minify'] : []), ...(map ? ['--sourcemap'] : [])] }),
-  rolldown: ({ entry, out, minify, map }) => ({ cmd: bin('rolldown'), args: [entry, '--file', out, '--format', 'esm', '--platform', 'node', ...(production ? ['--transform.define', `process.env.NODE_ENV=${NODE_ENV}`] : []), ...(minify ? ['--minify'] : []), ...(map ? ['--sourcemap'] : [])] }),
+  esbuild: ({ entry, out, minify, map }) => ({ cmd: esbuildBinary(), args: [entry, '--bundle', '--format=esm', '--platform=node', `--outfile=${out}`, '--log-level=error', '--banner:js=import { createRequire as __rkRequire } from "node:module"; import { fileURLToPath as __rkPath } from "node:url"; import { dirname as __rkDir } from "node:path"; const require = __rkRequire(import.meta.url), __filename = __rkPath(import.meta.url), __dirname = __rkDir(__filename);', ...(production ? [`--define:process.env.NODE_ENV=${NODE_ENV}`] : []), ...(minify ? ['--minify'] : []), ...(map ? ['--sourcemap'] : [])] }),
+  rolldown: ({ entry, out, minify, map }) => ({ cmd: process.execPath, args: [pkgBin('rolldown', 'rolldown'), entry, '--file', out, '--format', 'esm', '--platform', 'node', ...(production ? ['--transform.define', `process.env.NODE_ENV=${NODE_ENV}`] : []), ...(minify ? ['--minify'] : []), ...(map ? ['--sourcemap'] : [])] }),
   rspack: ({ entry, out, minify, map, dir }) => {
     const config = join(dir, 'rspack.config.mjs');
     writeFileSync(
       config,
       `export default { mode: 'production', context: ${JSON.stringify(here)}, entry: ${JSON.stringify(join(here, entry))}, target: 'node', externalsPresets: { node: true }, devtool: ${map ? "'source-map'" : 'false'}, optimization: { minimize: ${minify}, nodeEnv: ${production ? "'production'" : 'false'} }, experiments: { outputModule: true }, resolve: { extensions: ['.ts', '.js', '.mjs', '.json'] }, module: { rules: [{ test: /\\.ts$/, loader: 'builtin:swc-loader', options: { jsc: { parser: { syntax: 'typescript' } } }, type: 'javascript/auto' }] }, output: { path: ${JSON.stringify(dirname(out))}, filename: ${JSON.stringify(out.split('/').pop())}, module: true, library: { type: 'module' }, chunkFormat: 'module' }, stats: 'errors-only' };\n`,
     );
-    return { cmd: bin('rspack'), args: ['build', '--config', config] };
+    return { cmd: process.execPath, args: [pkgBin('@rspack/cli', 'rspack'), 'build', '--config', config] };
   },
   vite: ({ entry, out, minify, map, dir }) => {
     const config = join(dir, 'vite.config.mjs');
@@ -104,7 +113,7 @@ const tools = {
       config,
       `export default { root: ${JSON.stringify(here)}, logLevel: 'error', configFile: false, define: ${production ? `{ 'process.env.NODE_ENV': ${JSON.stringify(NODE_ENV)} }` : '{}'}, build: { outDir: ${JSON.stringify(dirname(out))}, emptyOutDir: false, minify: ${minify ? "'oxc'" : 'false'}, sourcemap: ${map}, target: 'esnext', lib: { entry: ${JSON.stringify(join(here, entry))}, formats: ['es'], fileName: () => ${JSON.stringify(out.split('/').pop())} }, rollupOptions: { external: ${JSON.stringify(externals)} } } };\n`,
     );
-    return { cmd: bin('vite'), args: ['build', '--config', config] };
+    return { cmd: process.execPath, args: [pkgBin('vite', 'vite'), 'build', '--config', config] };
   },
   parcel2: (c) => {
     const p = parcelCase(c);
@@ -126,7 +135,7 @@ const toolVersions = () => ({
 });
 if (listTools) {
   const versions = toolVersions();
-  const executables = { esbuild: bin('esbuild'), rolldown: bin('rolldown'), rspack: bin('rspack'), vite: bin('vite'), parcel2: join(here, 'node_modules/parcel2/lib/bin.js'), parcel3: parcel3Binary() };
+  const executables = { esbuild: esbuildBinary(), rolldown: pkgBin('rolldown', 'rolldown'), rspack: pkgBin('@rspack/cli', 'rspack'), vite: pkgBin('vite', 'vite'), parcel2: join(here, 'node_modules/parcel2/lib/bin.js'), parcel3: parcel3Binary() };
   for (const [tool, version] of Object.entries(versions)) {
     if (!existsSync(executables[tool])) throw new Error(`${tool}: no executable at ${executables[tool]}`);
     console.log(`${tool.padEnd(8)} ${version}  ${executables[tool]}`);
