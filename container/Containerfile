@@ -2,8 +2,8 @@
 # The benchmark image. Everything third-party is installed here, from the lockfile only, with no install scripts.
 # The run itself has no network (container/run.sh). Rebuild from a clean checkout; the image ID goes into every results.json.
 # To bump a pinned digest: docker buildx imagetools inspect <image:tag> --format '{{json .Manifest.Digest}}', then rerun the benchmark.
-# node:26.12.0-trixie-slim (Debian 13, glibc 2.41: the Pack binary needs glibc 2.39 or newer, so bookworm will not do)
-FROM docker.io/library/node:26.12.0-trixie-slim@sha256:e556a144463cc8dc53afe8de6d2fa0db5c132fd39ffa232c17641bd40df2bf11
+# node:26.13.0-trixie-slim (Debian 13, glibc 2.41: the Pack binary needs glibc 2.39 or newer, so bookworm will not do)
+FROM docker.io/library/node:26.13.0-trixie-slim@sha256:5adad64f9a1fca2d51972caa65983634c8a774eb300d72b20f7f2a0f60368072
 
 # SNAPSHOT empty (CI): the regular mirror. Set (container/run.sh --publish): a fixed snapshot.debian.org date, such as 20261105T000000Z.
 # TIME_VERSION pins the package either way.
