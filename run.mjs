@@ -4,7 +4,7 @@
 //   container/run.sh --pack-bin PATH -- [options] [workload...]     (the only way a published figure is made)
 //
 //   --runs N          timed runs per case, after one warm-up run (default 7)
-//   --tools a,b,c     rathkit, esbuild, rolldown, rspack, vite, parcel2, parcel3 (default rathkit; the others are for development only)
+//   --tools a,b,c     rathkit, esbuild, rolldown, rspack, vite, webpack, rollup, parcel2, parcel3 (default rathkit; the others are for development only)
 //   --env production  define process.env.NODE_ENV as "production" in every tool (the default), or `none` for no define
 //   --modes a,b       plain, minify, minify+map (default all three)
 //   --markdown        also print the tables as Markdown
@@ -115,6 +115,35 @@ const tools = {
     );
     return { cmd: process.execPath, args: [pkgBin('vite', 'vite'), 'build', '--config', config] };
   },
+  // webpack: the same options as the rspack case (production mode, minimizing and the NODE_ENV define switched by the case), with swc-loader for
+  // TypeScript (type stripping only, no type check) and webpack's own default minimizer (terser).
+  webpack: ({ entry, out, minify, map, dir }) => {
+    const config = join(dir, 'webpack.config.mjs');
+    const loader = createRequire(join(here, 'package.json')).resolve('swc-loader');
+    writeFileSync(
+      config,
+      `export default { mode: 'production', context: ${JSON.stringify(here)}, entry: ${JSON.stringify(join(here, entry))}, target: 'node', externalsPresets: { node: true }, devtool: ${map ? "'source-map'" : 'false'}, optimization: { minimize: ${minify}, nodeEnv: ${production ? "'production'" : 'false'} }, experiments: { outputModule: true }, resolve: { extensions: ['.ts', '.js', '.mjs', '.json'] }, module: { rules: [{ test: /\\.ts$/, loader: ${JSON.stringify(loader)}, options: { jsc: { parser: { syntax: 'typescript' } } } }] }, output: { path: ${JSON.stringify(dirname(out))}, filename: ${JSON.stringify(out.split('/').pop())}, module: true, library: { type: 'module' }, chunkFormat: 'module' }, stats: 'errors-only' };\n`,
+    );
+    return { cmd: process.execPath, args: [pkgBin('webpack-cli', 'webpack-cli'), 'build', '--config', config] };
+  },
+  // Rollup: node-resolve and commonjs (it reads neither on its own), replace for the NODE_ENV define, @rollup/plugin-typescript with its type checking
+  // off (noCheck) for TypeScript, and @rollup/plugin-terser for the minified cases (Rollup has no minifier of its own). The plugins are loaded
+  // from this folder's node_modules, because the config is written to the work folder.
+  rollup: ({ entry, out, minify, map, dir }) => {
+    const config = join(dir, 'rollup.config.mjs');
+    const plugins = [
+      production ? `load('@rollup/plugin-replace')({ preventAssignment: true, values: { 'process.env.NODE_ENV': ${JSON.stringify(NODE_ENV)} } })` : null,
+      `load('@rollup/plugin-node-resolve')({ preferBuiltins: true, extensions: ['.mjs', '.js', '.json', '.ts'] })`,
+      `load('@rollup/plugin-commonjs')()`,
+      `load('@rollup/plugin-typescript')({ tsconfig: false, compilerOptions: { noCheck: true, module: 'esnext', target: 'esnext', moduleResolution: 'bundler' } })`,
+      minify ? `load('@rollup/plugin-terser')()` : null,
+    ].filter(Boolean);
+    writeFileSync(
+      config,
+      `import { createRequire } from 'node:module';\nconst r = createRequire(${JSON.stringify(join(here, 'package.json'))});\nconst load = (name) => { const m = r(name); return m.default ?? m; };\nexport default { input: ${JSON.stringify(join(here, entry))}, external: ${JSON.stringify(externals)}, plugins: [${plugins.join(', ')}], output: { file: ${JSON.stringify(out)}, format: 'es', sourcemap: ${map} }, onwarn() {} };\n`,
+    );
+    return { cmd: process.execPath, args: [pkgBin('rollup', 'rollup'), '--config', config, '--silent'] };
+  },
   parcel2: (c) => {
     const p = parcelCase(c);
     return { cmd: process.execPath, args: [join(here, 'node_modules/parcel2/lib/bin.js'), 'build', p.entryPath, '--no-cache', '--no-autoinstall', ...p.flags], produced: p.produced };
@@ -130,12 +159,14 @@ const toolVersions = () => ({
   rolldown: pkgVersion('rolldown'),
   rspack: `${pkgVersion('@rspack/core')} (cli ${pkgVersion('@rspack/cli')})`,
   vite: pkgVersion('vite'),
+  webpack: `${pkgVersion('webpack')} (webpack-cli ${pkgVersion('webpack-cli')}, swc-loader ${pkgVersion('swc-loader')}, @swc/core ${pkgVersion('@swc/core')})`,
+  rollup: `${pkgVersion('rollup')} (node-resolve ${pkgVersion('@rollup/plugin-node-resolve')}, commonjs ${pkgVersion('@rollup/plugin-commonjs')}, replace ${pkgVersion('@rollup/plugin-replace')}, typescript ${pkgVersion('@rollup/plugin-typescript')}, terser ${pkgVersion('@rollup/plugin-terser')})`,
   parcel2: pkgVersion('parcel2'),
   parcel3: pkgVersion('parcel3'),
 });
 if (listTools) {
   const versions = toolVersions();
-  const executables = { esbuild: esbuildBinary(), rolldown: pkgBin('rolldown', 'rolldown'), rspack: pkgBin('@rspack/cli', 'rspack'), vite: pkgBin('vite', 'vite'), parcel2: join(here, 'node_modules/parcel2/lib/bin.js'), parcel3: parcel3Binary() };
+  const executables = { esbuild: esbuildBinary(), rolldown: pkgBin('rolldown', 'rolldown'), rspack: pkgBin('@rspack/cli', 'rspack'), vite: pkgBin('vite', 'vite'), webpack: pkgBin('webpack-cli', 'webpack-cli'), rollup: pkgBin('rollup', 'rollup'), parcel2: join(here, 'node_modules/parcel2/lib/bin.js'), parcel3: parcel3Binary() };
   for (const [tool, version] of Object.entries(versions)) {
     if (!existsSync(executables[tool])) throw new Error(`${tool}: no executable at ${executables[tool]}`);
     console.log(`${tool.padEnd(8)} ${version}  ${executables[tool]}`);
