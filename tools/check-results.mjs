@@ -15,7 +15,9 @@ const dig = (o, path) => path.split('.').reduce((v, k) => (v == null ? undefined
 
 export const problems = (results, { smoke = false, noGit = false } = {}) => {
   const out = [];
-  for (const path of required) {
+  // webpack and Rollup came later: their versions are required only when the results hold rows for them.
+  const extra = ['webpack', 'rollup'].filter((t) => Array.isArray(results.rows) && results.rows.some((r) => r.tool === t)).map((t) => `tools.${t}`);
+  for (const path of [...required, ...extra]) {
     const v = dig(results, path);
     if (v === undefined || v === null || v === '') {
       // The host note may be empty only in a smoke test.

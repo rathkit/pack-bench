@@ -31,9 +31,14 @@ benchmark, or `pnpm install`, outside it.
   run with `--no-cache`. Parcel 3 is run as its native executable. Without `--optimize` Parcel neither minifies nor scope-hoists.
 - **Other tools** use the options in `run.mjs` (for rspack, a config with `builtin:swc-loader` for TypeScript; for Vite,
   library mode), not tuned beyond that.
+- **webpack and Rollup:** webpack runs in production mode with `swc-loader` for TypeScript and its own default minimizer
+  (terser). Rollup runs with `@rollup/plugin-node-resolve`, `@rollup/plugin-commonjs`, `@rollup/plugin-replace` (the
+  `NODE_ENV` define), `@rollup/plugin-typescript` and, for the minified cases, `@rollup/plugin-terser`, because Rollup has no
+  minifier of its own. So their minified times partly measure terser. Neither tool checks types: `swc-loader` only strips
+  them, and `@rollup/plugin-typescript` runs with `noCheck`, because by default it type-checks and would add that to its time.
 - **Launch:** every tool is started through its own entry point, never through the package manager's shell shim in
   `node_modules/.bin` (which would add a shell and a Node start-up to its time): esbuild and Parcel 3 as their native
-  executables, and rolldown, rspack, Vite and Parcel 2 as `node <the package's bin file>`, so those four include Node's own
+  executables, and rolldown, rspack, Vite, webpack, Rollup and Parcel 2 as `node <the package's bin file>`, so those six include Node's own
   start-up. `launch` in the results records this (`direct`; `shim` is the older method).
 - **Cold:** every run is one fresh container (`--rm`), so no tool keeps a cache from one run to the next. The operating
   system's page cache is warm, because the single warm-up run is part of the method. Outputs go to a RAM disk, so disk speed is out of the timing for every tool alike.
@@ -61,7 +66,7 @@ container/build-pack.sh ../pack <commit> <out-dir> <work-dir>
 
 # 2. Run. Everything after -- goes to run.mjs.
 HOST_NOTE="WSL2, Docker Desktop 29.9.2, laptop on AC" \
-  container/run.sh --pack-bin <out-dir>/rkp -- --tools rathkit,esbuild,rolldown,rspack,vite,parcel2,parcel3 --markdown
+  container/run.sh --pack-bin <out-dir>/rkp -- --tools rathkit,esbuild,rolldown,rspack,vite,webpack,rollup,parcel2,parcel3 --markdown
 ```
 
 `run.mjs` options: `--runs N`, `--tools`, `--env`, `--modes`, `--markdown`, `--work DIR`, `--results FILE`, `--list-tools`, and
@@ -89,7 +94,7 @@ Check out the bench commit named in the figure, build Pack at the commit it name
 
 ## Results schema (`schema: 2`)
 
-`date`, `pack.{version,sha256,commit}`, `bench.{commit,imageId,launch,rootfs}`, `node`, `tools.{esbuild,rolldown,rspack,vite,parcel2,parcel3}`,
+`date`, `pack.{version,sha256,commit}`, `bench.{commit,imageId,launch,rootfs}`, `node`, `tools.{esbuild,rolldown,rspack,vite,parcel2,parcel3}` (and `tools.{webpack,rollup}` when those were run),
 `machine.{cpu,logicalCpus,cpuset,memoryLimit,kernel,note}`, `load.{before,after}` (`/proc/loadavg`), `env`, `runs`, `modes`, `argv`, `rows`.
 `tools/check-results.mjs` fails on any missing field, on fewer than 7 runs, or on a `bench.commit` that is not on `origin/main`.
 

@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { problems } from './check-results.mjs';
 
-const labels = { rathkit: 'Rathkit Pack', esbuild: 'esbuild', rolldown: 'rolldown', rspack: 'rspack', vite: 'Vite', parcel2: 'Parcel 2', parcel3: 'Parcel 3' };
+const labels = { rathkit: 'Rathkit Pack', esbuild: 'esbuild', rolldown: 'rolldown', rspack: 'rspack', vite: 'Vite', webpack: 'webpack', rollup: 'Rollup', parcel2: 'Parcel 2', parcel3: 'Parcel 3' };
 const workloadNames = {
   ts5: 'TypeScript compiler', three: 'three.js', lodash: 'lodash-es', react: 'React + react-dom/server', rxjs: 'rxjs',
   app1500: '1,500-module app', tsapp500: '500-module TypeScript app',
@@ -31,6 +31,9 @@ export const report = (res) => {
   const idle = res.load.before[0] < 1.0;
   const toolList = [
     `esbuild ${res.tools.esbuild}`, `rolldown ${res.tools.rolldown}`, `@rspack/core ${res.tools.rspack.split(' ')[0]}`, `Vite ${res.tools.vite}`,
+    // webpack and Rollup print their plugins and loaders too, because the figure depends on them.
+    ...(res.rows.some((r) => r.tool === 'webpack') ? [`webpack ${res.tools.webpack}`] : []),
+    ...(res.rows.some((r) => r.tool === 'rollup') ? [`Rollup ${res.tools.rollup}`] : []),
     `Parcel 2 ${res.tools.parcel2}`, `Parcel 3 ${res.tools.parcel3} (an alpha)`,
   ];
   parts.push(
