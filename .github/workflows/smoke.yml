@@ -37,6 +37,7 @@ jobs:
         run: container/run.sh --pack-bin "$RUNNER_TEMP/rkp/rkp" -- --runs 1
         env:
           HOST_NOTE: GitHub-hosted runner, smoke test, not for publication
+          CPUSET: 0-3
       - run: node tools/check-results.mjs "$(ls results/*.json | head -1)" --smoke
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
