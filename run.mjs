@@ -108,10 +108,13 @@ const tools = {
     return { cmd: process.execPath, args: [pkgBin('@rspack/cli', 'rspack'), 'build', '--config', config] };
   },
   vite: ({ entry, out, minify, map, dir }) => {
+    // The values reach the config as data (a JSON file read at run time), never spliced into code.
     const config = join(dir, 'vite.config.mjs');
+    const values = join(dir, 'vite.values.json');
+    writeFileSync(values, JSON.stringify({ root: here, entry: join(here, entry), outDir: dirname(out), fileName: out.split('/').pop(), minify: minify ? 'oxc' : false, sourcemap: map, define: production ? { 'process.env.NODE_ENV': NODE_ENV } : {}, external: externals }));
     writeFileSync(
       config,
-      `export default { root: ${JSON.stringify(here)}, logLevel: 'error', configFile: false, define: ${production ? `{ 'process.env.NODE_ENV': ${JSON.stringify(NODE_ENV)} }` : '{}'}, build: { outDir: ${JSON.stringify(dirname(out))}, emptyOutDir: false, minify: ${minify ? "'oxc'" : 'false'}, sourcemap: ${map}, target: 'esnext', lib: { entry: ${JSON.stringify(join(here, entry))}, formats: ['es'], fileName: () => ${JSON.stringify(out.split('/').pop())} }, rollupOptions: { external: ${JSON.stringify(externals)} } } };\n`,
+      `import { readFileSync } from 'node:fs';\nconst v = JSON.parse(readFileSync(new URL('./vite.values.json', import.meta.url), 'utf8'));\nexport default { root: v.root, logLevel: 'error', configFile: false, define: v.define, build: { outDir: v.outDir, emptyOutDir: false, minify: v.minify, sourcemap: v.sourcemap, target: 'esnext', lib: { entry: v.entry, formats: ['es'], fileName: () => v.fileName }, rollupOptions: { external: v.external } } };\n`,
     );
     return { cmd: process.execPath, args: [pkgBin('vite', 'vite'), 'build', '--config', config] };
   },
