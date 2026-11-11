@@ -1,0 +1,2703 @@
+{
+ "schema": 2,
+ "date": "2026-11-11T14:59:31.905Z",
+ "pack": {
+  "version": "rkp 0.1.0-alpha.2",
+  "sha256": "88ab2d7c110254d9b7553725a7ff89d1175e35ec955df22b7810b5828a15d730",
+  "commit": "e85c76bcaecb78af93a4076eb6a01d95cd24d9c5"
+ },
+ "bench": {
+  "commit": "ebd9e988cbebbc19770cde6ec1f57909b609b14d",
+  "imageId": "sha256:824c1d882604a60bce540a645464c75604ef33b9eb8e397ad793fc8fb11eba30",
+  "launch": "direct",
+  "rootfs": "read-only"
+ },
+ "node": "v26.13.0",
+ "tools": {
+  "esbuild": "0.28.2",
+  "rolldown": "1.2.15",
+  "rspack": "2.2.9 (cli 2.2.9)",
+  "vite": "8.3.5",
+  "webpack": "5.112.2 (webpack-cli 7.3.1, swc-loader 0.2.7, @swc/core 1.16.22)",
+  "rollup": "4.67.5 (node-resolve 16.0.3, commonjs 29.0.3, replace 6.0.3, typescript 12.3.1, terser 1.0.2)",
+  "parcel2": "2.16.4",
+  "parcel3": "3.0.0-alpha.2"
+ },
+ "machine": {
+  "cpu": "11th Gen Intel(R) Core(TM) i7-11850H @ 2.50GHz",
+  "logicalCpus": 8,
+  "cpuset": "2-9",
+  "memoryLimit": "12884901888",
+  "kernel": "6.18.58.1-microsoft-standard-WSL2",
+  "note": "WSL2, Docker Desktop, laptop on AC"
+ },
+ "load": {
+  "before": [
+   0.99,
+   0.27,
+   0.14
+  ],
+  "after": [
+   2.13,
+   2.04,
+   1.68
+  ]
+ },
+ "env": "production",
+ "runs": 7,
+ "modes": [
+  "plain",
+  "minify",
+  "minify+map"
+ ],
+ "argv": [
+  "--work",
+  "/work",
+  "--results",
+  "/results/20261111T142341Z.json",
+  "--tools",
+  "rathkit,esbuild,rolldown,rspack,vite,webpack,rollup,parcel2,parcel3",
+  "--runs",
+  "7",
+  "--markdown"
+ ],
+ "rows": [
+  {
+   "name": "ts5",
+   "mode": "plain",
+   "tool": "rathkit",
+   "min": 175.647205,
+   "med": 182.276932,
+   "rss": 74.58984375,
+   "size": {
+    "bytes": 8412756,
+    "gzip": 1520721
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "ts5",
+   "mode": "plain",
+   "tool": "esbuild",
+   "min": 349.284981,
+   "med": 384.131594,
+   "rss": 244.65234375,
+   "size": {
+    "bytes": 10023588,
+    "gzip": 1639909
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "ts5",
+   "mode": "plain",
+   "tool": "rolldown",
+   "min": 681.343745,
+   "med": 709.414129,
+   "rss": 357.22265625,
+   "size": {
+    "bytes": 7960083,
+    "gzip": 1478907
+   },
+   "runs": "fails",
+   "failed": null
+  },
+  {
+   "name": "ts5",
+   "mode": "plain",
+   "tool": "rspack",
+   "min": 322.678497,
+   "med": 341.948577,
+   "rss": 231.96484375,
+   "size": {
+    "bytes": 9182896,
+    "gzip": 1661934
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "ts5",
+   "mode": "plain",
+   "tool": "vite",
+   "min": 845.397301,
+   "med": 860.933483,
+   "rss": 335.90625,
+   "size": {
+    "bytes": 7867015,
+    "gzip": 1457814
+   },
+   "runs": "fails",
+   "failed": null
+  },
+  {
+   "name": "ts5",
+   "mode": "plain",
+   "tool": "webpack",
+   "min": 1219.739623,
+   "med": 1247.688383,
+   "rss": 422.1015625,
+   "size": {
+    "bytes": 9183920,
+    "gzip": 1662035
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "ts5",
+   "mode": "plain",
+   "tool": "rollup",
+   "min": 7758.355557,
+   "med": 7905.792928,
+   "rss": 1565.0234375,
+   "size": {
+    "bytes": 9575560,
+    "gzip": 1677458
+   },
+   "runs": "fails",
+   "failed": null
+  },
+  {
+   "name": "ts5",
+   "mode": "plain",
+   "tool": "parcel2",
+   "min": 2124.346437,
+   "med": 2167.76821,
+   "rss": 597.50390625,
+   "size": {
+    "bytes": 10208406,
+    "gzip": 1680541
+   },
+   "runs": "fails",
+   "failed": null
+  },
+  {
+   "name": "ts5",
+   "mode": "plain",
+   "tool": "parcel3",
+   "min": 555.100971,
+   "med": 558.963501,
+   "rss": 261.27734375,
+   "size": {
+    "bytes": 9378865,
+    "gzip": 1539935
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "ts5",
+   "mode": "minify",
+   "tool": "rathkit",
+   "min": 237.569283,
+   "med": 240.384614,
+   "rss": 166.22265625,
+   "size": {
+    "bytes": 3560768,
+    "gzip": 998818
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "ts5",
+   "mode": "minify",
+   "tool": "esbuild",
+   "min": 355.835998,
+   "med": 362.280219,
+   "rss": 199.40625,
+   "size": {
+    "bytes": 3599034,
+    "gzip": 1036792
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "ts5",
+   "mode": "minify",
+   "tool": "rolldown",
+   "min": 795.669077,
+   "med": 814.935954,
+   "rss": 378.984375,
+   "size": {
+    "bytes": 3555764,
+    "gzip": 993050
+   },
+   "runs": "fails",
+   "failed": null
+  },
+  {
+   "name": "ts5",
+   "mode": "minify",
+   "tool": "rspack",
+   "min": 1664.256641,
+   "med": 1686.738353,
+   "rss": 325.83203125,
+   "size": {
+    "bytes": 3486778,
+    "gzip": 987837
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "ts5",
+   "mode": "minify",
+   "tool": "vite",
+   "min": 1010.206436,
+   "med": 1018.529022,
+   "rss": 367.6953125,
+   "size": {
+    "bytes": 4490105,
+    "gzip": 1077240
+   },
+   "runs": "fails",
+   "failed": null
+  },
+  {
+   "name": "ts5",
+   "mode": "minify",
+   "tool": "webpack",
+   "min": 18053.825171,
+   "med": 18233.742663,
+   "rss": 1714.87109375,
+   "size": {
+    "bytes": 3549932,
+    "gzip": 981543
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "ts5",
+   "mode": "minify",
+   "tool": "rollup",
+   "min": 26662.884191,
+   "med": 26913.580416,
+   "rss": 3092.578125,
+   "size": {
+    "bytes": 3541475,
+    "gzip": 982064
+   },
+   "runs": "fails",
+   "failed": null
+  },
+  {
+   "name": "ts5",
+   "mode": "minify",
+   "tool": "parcel2",
+   "min": 3538.608087,
+   "med": 3568.050849,
+   "rss": 816.3046875,
+   "size": {
+    "bytes": 3488220,
+    "gzip": 987847
+   },
+   "runs": "fails",
+   "failed": null
+  },
+  {
+   "name": "ts5",
+   "mode": "minify",
+   "tool": "parcel3",
+   "min": 1377.327617,
+   "med": 1387.759558,
+   "rss": 298.23046875,
+   "size": {
+    "bytes": 3507525,
+    "gzip": 992456
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "ts5",
+   "mode": "minify+map",
+   "tool": "rathkit",
+   "min": 295.598505,
+   "med": 304.374811,
+   "rss": 200.53515625,
+   "size": {
+    "bytes": 3560802,
+    "gzip": 998841
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "ts5",
+   "mode": "minify+map",
+   "tool": "esbuild",
+   "min": 511.774139,
+   "med": 521.869182,
+   "rss": 264.65234375,
+   "size": {
+    "bytes": 3599067,
+    "gzip": 1036818
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "ts5",
+   "mode": "minify+map",
+   "tool": "rolldown",
+   "min": 899.862101,
+   "med": 902.769978,
+   "rss": 505.16796875,
+   "size": {
+    "bytes": 3555797,
+    "gzip": 993074
+   },
+   "runs": "fails",
+   "failed": null
+  },
+  {
+   "name": "ts5",
+   "mode": "minify+map",
+   "tool": "rspack",
+   "min": 1897.939355,
+   "med": 1948.746479,
+   "rss": 429.66015625,
+   "size": {
+    "bytes": 3486811,
+    "gzip": 987866
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "ts5",
+   "mode": "minify+map",
+   "tool": "vite",
+   "min": 1084.874048,
+   "med": 1105.920899,
+   "rss": 461.52734375,
+   "size": {
+    "bytes": 4490138,
+    "gzip": 1077263
+   },
+   "runs": "fails",
+   "failed": null
+  },
+  {
+   "name": "ts5",
+   "mode": "minify+map",
+   "tool": "webpack",
+   "min": 18717.801387,
+   "med": 18783.582897,
+   "rss": 1773.4140625,
+   "size": {
+    "bytes": 3549965,
+    "gzip": 981572
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "ts5",
+   "mode": "minify+map",
+   "tool": "rollup",
+   "min": 27757.945144,
+   "med": 27864.357284,
+   "rss": 3140.52734375,
+   "size": {
+    "bytes": 3541508,
+    "gzip": 982088
+   },
+   "runs": "fails",
+   "failed": null
+  },
+  {
+   "name": "ts5",
+   "mode": "minify+map",
+   "tool": "parcel2",
+   "min": 4616.056609,
+   "med": 4666.354875,
+   "rss": 1392.1171875,
+   "size": {
+    "bytes": 3488253,
+    "gzip": 987874
+   },
+   "runs": "fails",
+   "failed": null
+  },
+  {
+   "name": "ts5",
+   "mode": "minify+map",
+   "tool": "parcel3",
+   "min": 1452.606481,
+   "med": 1490.1397,
+   "rss": 374.74609375,
+   "size": {
+    "bytes": 3507558,
+    "gzip": 992469
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "three",
+   "mode": "plain",
+   "tool": "rathkit",
+   "min": 36.81553,
+   "med": 37.503361,
+   "rss": 18.7578125,
+   "size": {
+    "bytes": 899765,
+    "gzip": 168768
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "three",
+   "mode": "plain",
+   "tool": "esbuild",
+   "min": 57.675639,
+   "med": 58.499272,
+   "rss": 52.52734375,
+   "size": {
+    "bytes": 1116804,
+    "gzip": 204734
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "three",
+   "mode": "plain",
+   "tool": "rolldown",
+   "min": 129.924837,
+   "med": 130.406198,
+   "rss": 174.3203125,
+   "size": {
+    "bytes": 1171862,
+    "gzip": 235362
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "three",
+   "mode": "plain",
+   "tool": "rspack",
+   "min": 138.961171,
+   "med": 143.097276,
+   "rss": 141.1875,
+   "size": {
+    "bytes": 2117097,
+    "gzip": 415384
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "three",
+   "mode": "plain",
+   "tool": "vite",
+   "min": 226.425171,
+   "med": 227.920739,
+   "rss": 198.77734375,
+   "size": {
+    "bytes": 1171715,
+    "gzip": 235366
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "three",
+   "mode": "plain",
+   "tool": "webpack",
+   "min": 574.419534,
+   "med": 579.336858,
+   "rss": 199.76171875,
+   "size": {
+    "bytes": 2115246,
+    "gzip": 415000
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "three",
+   "mode": "plain",
+   "tool": "rollup",
+   "min": 1806.113809,
+   "med": 1811.558896,
+   "rss": 453.59375,
+   "size": {
+    "bytes": 1244323,
+    "gzip": 249843
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "three",
+   "mode": "plain",
+   "tool": "parcel2",
+   "min": 668.777486,
+   "med": 686.973545,
+   "rss": 357.3125,
+   "size": {
+    "bytes": 2393236,
+    "gzip": 434870
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "three",
+   "mode": "plain",
+   "tool": "parcel3",
+   "min": 78.312388,
+   "med": 80.886247,
+   "rss": 91.0390625,
+   "size": {
+    "bytes": 1559932,
+    "gzip": 261212
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "three",
+   "mode": "minify",
+   "tool": "rathkit",
+   "min": 43.398808,
+   "med": 44.061008,
+   "rss": 30.2109375,
+   "size": {
+    "bytes": 527716,
+    "gzip": 130995
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "three",
+   "mode": "minify",
+   "tool": "esbuild",
+   "min": 65.773675,
+   "med": 66.820666,
+   "rss": 48.15234375,
+   "size": {
+    "bytes": 529442,
+    "gzip": 133242
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "three",
+   "mode": "minify",
+   "tool": "rolldown",
+   "min": 138.474231,
+   "med": 142.710956,
+   "rss": 170.8828125,
+   "size": {
+    "bytes": 525623,
+    "gzip": 129004
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "three",
+   "mode": "minify",
+   "tool": "rspack",
+   "min": 287.001462,
+   "med": 293.905513,
+   "rss": 165.375,
+   "size": {
+    "bytes": 531294,
+    "gzip": 130588
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "three",
+   "mode": "minify",
+   "tool": "vite",
+   "min": 235.013256,
+   "med": 250.521585,
+   "rss": 203.8515625,
+   "size": {
+    "bytes": 615643,
+    "gzip": 137477
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "three",
+   "mode": "minify",
+   "tool": "webpack",
+   "min": 2432.568307,
+   "med": 2452.110033,
+   "rss": 428.58203125,
+   "size": {
+    "bytes": 537032,
+    "gzip": 129479
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "three",
+   "mode": "minify",
+   "tool": "rollup",
+   "min": 2935.592519,
+   "med": 2974.76287,
+   "rss": 627.07421875,
+   "size": {
+    "bytes": 517792,
+    "gzip": 125625
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "three",
+   "mode": "minify",
+   "tool": "parcel2",
+   "min": 807.835814,
+   "med": 836.63799,
+   "rss": 422.02734375,
+   "size": {
+    "bytes": 531191,
+    "gzip": 130578
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "three",
+   "mode": "minify",
+   "tool": "parcel3",
+   "min": 127.034077,
+   "med": 128.850596,
+   "rss": 119.671875,
+   "size": {
+    "bytes": 631847,
+    "gzip": 155208
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "three",
+   "mode": "minify+map",
+   "tool": "rathkit",
+   "min": 53.481834,
+   "med": 54.690995,
+   "rss": 38.17578125,
+   "size": {
+    "bytes": 527750,
+    "gzip": 131021
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "three",
+   "mode": "minify+map",
+   "tool": "esbuild",
+   "min": 82.676382,
+   "med": 84.556321,
+   "rss": 59.40234375,
+   "size": {
+    "bytes": 529475,
+    "gzip": 133267
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "three",
+   "mode": "minify+map",
+   "tool": "rolldown",
+   "min": 151.994041,
+   "med": 156.733756,
+   "rss": 203.01171875,
+   "size": {
+    "bytes": 525656,
+    "gzip": 129032
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "three",
+   "mode": "minify+map",
+   "tool": "rspack",
+   "min": 326.594003,
+   "med": 333.908076,
+   "rss": 186.453125,
+   "size": {
+    "bytes": 531327,
+    "gzip": 130615
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "three",
+   "mode": "minify+map",
+   "tool": "vite",
+   "min": 241.581889,
+   "med": 247.587795,
+   "rss": 231.8359375,
+   "size": {
+    "bytes": 615676,
+    "gzip": 137503
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "three",
+   "mode": "minify+map",
+   "tool": "webpack",
+   "min": 2616.569803,
+   "med": 2653.086315,
+   "rss": 490.671875,
+   "size": {
+    "bytes": 537065,
+    "gzip": 129506
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "three",
+   "mode": "minify+map",
+   "tool": "rollup",
+   "min": 3040.057788,
+   "med": 3067.251015,
+   "rss": 640.08984375,
+   "size": {
+    "bytes": 517825,
+    "gzip": 125651
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "three",
+   "mode": "minify+map",
+   "tool": "parcel2",
+   "min": 996.086671,
+   "med": 1034.530396,
+   "rss": 565.29296875,
+   "size": {
+    "bytes": 531226,
+    "gzip": 130606
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "three",
+   "mode": "minify+map",
+   "tool": "parcel3",
+   "min": 142.242706,
+   "med": 144.891841,
+   "rss": 143.28515625,
+   "size": {
+    "bytes": 631882,
+    "gzip": 155227
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "lodash",
+   "mode": "plain",
+   "tool": "rathkit",
+   "min": 19.462349,
+   "med": 19.732274,
+   "rss": 12.484375,
+   "size": {
+    "bytes": 190346,
+    "gzip": 41340
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "lodash",
+   "mode": "plain",
+   "tool": "esbuild",
+   "min": 31.104037,
+   "med": 31.694205,
+   "rss": 51.15234375,
+   "size": {
+    "bytes": 266378,
+    "gzip": 49481
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "lodash",
+   "mode": "plain",
+   "tool": "rolldown",
+   "min": 105.760864,
+   "med": 108.703249,
+   "rss": 219.70703125,
+   "size": {
+    "bytes": 494224,
+    "gzip": 98550
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "lodash",
+   "mode": "plain",
+   "tool": "rspack",
+   "min": 112.037481,
+   "med": 116.043949,
+   "rss": 125.9140625,
+   "size": {
+    "bytes": 645243,
+    "gzip": 119230
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "lodash",
+   "mode": "plain",
+   "tool": "vite",
+   "min": 171.235398,
+   "med": 179.761928,
+   "rss": 248.1171875,
+   "size": {
+    "bytes": 494224,
+    "gzip": 98550
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "lodash",
+   "mode": "plain",
+   "tool": "webpack",
+   "min": 719.950209,
+   "med": 733.118829,
+   "rss": 202.38671875,
+   "size": {
+    "bytes": 598863,
+    "gzip": 113150
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "lodash",
+   "mode": "plain",
+   "tool": "rollup",
+   "min": 2985.004689,
+   "med": 3019.581214,
+   "rss": 392.828125,
+   "size": {
+    "bytes": 488749,
+    "gzip": 100384
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "lodash",
+   "mode": "plain",
+   "tool": "parcel2",
+   "min": 1030.094929,
+   "med": 1039.462029,
+   "rss": 452.4375,
+   "size": {
+    "bytes": 731474,
+    "gzip": 142454
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "lodash",
+   "mode": "plain",
+   "tool": "parcel3",
+   "min": 6.332199,
+   "med": 7.207319,
+   "rss": 26.28125,
+   "size": {
+    "bytes": 37836,
+    "gzip": 11303
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "lodash",
+   "mode": "minify",
+   "tool": "rathkit",
+   "min": 22.321002,
+   "med": 22.847287,
+   "rss": 16.203125,
+   "size": {
+    "bytes": 77489,
+    "gzip": 27464
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "lodash",
+   "mode": "minify",
+   "tool": "esbuild",
+   "min": 31.75479,
+   "med": 32.282828,
+   "rss": 51.52734375,
+   "size": {
+    "bytes": 82765,
+    "gzip": 30536
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "lodash",
+   "mode": "minify",
+   "tool": "rolldown",
+   "min": 109.792551,
+   "med": 114.400275,
+   "rss": 219.32421875,
+   "size": {
+    "bytes": 74289,
+    "gzip": 26303
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "lodash",
+   "mode": "minify",
+   "tool": "rspack",
+   "min": 153.576006,
+   "med": 159.927072,
+   "rss": 136.59765625,
+   "size": {
+    "bytes": 79507,
+    "gzip": 29206
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "lodash",
+   "mode": "minify",
+   "tool": "vite",
+   "min": 174.576514,
+   "med": 185.007609,
+   "rss": 243.18359375,
+   "size": {
+    "bytes": 135140,
+    "gzip": 32588
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "lodash",
+   "mode": "minify",
+   "tool": "webpack",
+   "min": 1421.899695,
+   "med": 1437.003171,
+   "rss": 346.5703125,
+   "size": {
+    "bytes": 73684,
+    "gzip": 25150
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "lodash",
+   "mode": "minify",
+   "tool": "rollup",
+   "min": 3448.83273,
+   "med": 3479.639086,
+   "rss": 481.5078125,
+   "size": {
+    "bytes": 72765,
+    "gzip": 24726
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "lodash",
+   "mode": "minify",
+   "tool": "parcel2",
+   "min": 1061.697924,
+   "med": 1089.431769,
+   "rss": 499.18359375,
+   "size": {
+    "bytes": 87077,
+    "gzip": 29597
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "lodash",
+   "mode": "minify",
+   "tool": "parcel3",
+   "min": 6.255947,
+   "med": 7.654356,
+   "rss": 26.9375,
+   "size": {
+    "bytes": 3016,
+    "gzip": 1360
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "lodash",
+   "mode": "minify+map",
+   "tool": "rathkit",
+   "min": 29.926016,
+   "med": 31.452411,
+   "rss": 20.80859375,
+   "size": {
+    "bytes": 77523,
+    "gzip": 27487
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "lodash",
+   "mode": "minify+map",
+   "tool": "esbuild",
+   "min": 34.469038,
+   "med": 36.009574,
+   "rss": 56.27734375,
+   "size": {
+    "bytes": 82798,
+    "gzip": 30558
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "lodash",
+   "mode": "minify+map",
+   "tool": "rolldown",
+   "min": 115.828106,
+   "med": 117.620551,
+   "rss": 232.91015625,
+   "size": {
+    "bytes": 74322,
+    "gzip": 26324
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "lodash",
+   "mode": "minify+map",
+   "tool": "rspack",
+   "min": 168.955821,
+   "med": 172.05229,
+   "rss": 144.13671875,
+   "size": {
+    "bytes": 79540,
+    "gzip": 29230
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "lodash",
+   "mode": "minify+map",
+   "tool": "vite",
+   "min": 181.75886,
+   "med": 189.116768,
+   "rss": 267.3515625,
+   "size": {
+    "bytes": 135173,
+    "gzip": 32609
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "lodash",
+   "mode": "minify+map",
+   "tool": "webpack",
+   "min": 1475.619787,
+   "med": 1503.483683,
+   "rss": 348.40625,
+   "size": {
+    "bytes": 73717,
+    "gzip": 25173
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "lodash",
+   "mode": "minify+map",
+   "tool": "rollup",
+   "min": 3500.480578,
+   "med": 3507.649709,
+   "rss": 489.65625,
+   "size": {
+    "bytes": 72798,
+    "gzip": 24748
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "lodash",
+   "mode": "minify+map",
+   "tool": "parcel2",
+   "min": 1130.482001,
+   "med": 1150.281618,
+   "rss": 536.26953125,
+   "size": {
+    "bytes": 87113,
+    "gzip": 29619
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "lodash",
+   "mode": "minify+map",
+   "tool": "parcel3",
+   "min": 6.452468,
+   "med": 7.519256,
+   "rss": 27.2734375,
+   "size": {
+    "bytes": 3052,
+    "gzip": 1391
+   },
+   "runs": "-",
+   "failed": null
+  },
+  {
+   "name": "react",
+   "mode": "plain",
+   "tool": "rathkit",
+   "min": 10.626045,
+   "med": 11.005614,
+   "rss": 8.5859375,
+   "size": {
+    "bytes": 592017,
+    "gzip": 107883
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "react",
+   "mode": "plain",
+   "tool": "esbuild",
+   "min": 16.850512,
+   "med": 17.062451,
+   "rss": 26.52734375,
+   "size": {
+    "bytes": 600193,
+    "gzip": 104502
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "react",
+   "mode": "plain",
+   "tool": "rolldown",
+   "min": 100.702436,
+   "med": 104.206333,
+   "rss": 170.40234375,
+   "size": {
+    "bytes": 499856,
+    "gzip": 96687
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "react",
+   "mode": "plain",
+   "tool": "rspack",
+   "min": 89.863883,
+   "med": 93.242273,
+   "rss": 107.12890625,
+   "size": {
+    "bytes": 593831,
+    "gzip": 109509
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "react",
+   "mode": "plain",
+   "tool": "vite",
+   "min": 162.437496,
+   "med": 165.533535,
+   "rss": 188.28515625,
+   "size": {
+    "bytes": 481915,
+    "gzip": 91945
+   },
+   "runs": "fails",
+   "failed": null
+  },
+  {
+   "name": "react",
+   "mode": "plain",
+   "tool": "webpack",
+   "min": 375.311488,
+   "med": 381.19749,
+   "rss": 137.1328125,
+   "size": {
+    "bytes": 595781,
+    "gzip": 109804
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "react",
+   "mode": "plain",
+   "tool": "rollup",
+   "min": 1576.489829,
+   "med": 1593.015372,
+   "rss": 378.62890625,
+   "size": {
+    "bytes": 610391,
+    "gzip": 108840
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "react",
+   "mode": "plain",
+   "tool": "parcel2",
+   "min": 569.348852,
+   "med": 597.868359,
+   "rss": 338.8828125,
+   "size": {
+    "bytes": 1547939,
+    "gzip": 266359
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "react",
+   "mode": "plain",
+   "tool": "parcel3",
+   "min": 31.165902,
+   "med": 34.321248,
+   "rss": 120.5703125,
+   "size": {
+    "bytes": 1478605,
+    "gzip": 268253
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "react",
+   "mode": "minify",
+   "tool": "rathkit",
+   "min": 15.642342,
+   "med": 16.195333,
+   "rss": 14.4921875,
+   "size": {
+    "bytes": 233382,
+    "gzip": 70100
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "react",
+   "mode": "minify",
+   "tool": "esbuild",
+   "min": 17.558869,
+   "med": 17.972883,
+   "rss": 24.52734375,
+   "size": {
+    "bytes": 234509,
+    "gzip": 70399
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "react",
+   "mode": "minify",
+   "tool": "rolldown",
+   "min": 104.494921,
+   "med": 106.906929,
+   "rss": 168.421875,
+   "size": {
+    "bytes": 233255,
+    "gzip": 69303
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "react",
+   "mode": "minify",
+   "tool": "rspack",
+   "min": 162.29073,
+   "med": 164.859096,
+   "rss": 121.3515625,
+   "size": {
+    "bytes": 230563,
+    "gzip": 69555
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "react",
+   "mode": "minify",
+   "tool": "vite",
+   "min": 169.254609,
+   "med": 177.268733,
+   "rss": 194.625,
+   "size": {
+    "bytes": 281788,
+    "gzip": 72305
+   },
+   "runs": "fails",
+   "failed": null
+  },
+  {
+   "name": "react",
+   "mode": "minify",
+   "tool": "webpack",
+   "min": 1405.3113,
+   "med": 1415.605325,
+   "rss": 291.91796875,
+   "size": {
+    "bytes": 231601,
+    "gzip": 69569
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "react",
+   "mode": "minify",
+   "tool": "rollup",
+   "min": 2297.841808,
+   "med": 2320.923049,
+   "rss": 516.09765625,
+   "size": {
+    "bytes": 232287,
+    "gzip": 68971
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "react",
+   "mode": "minify",
+   "tool": "parcel2",
+   "min": 724.55743,
+   "med": 756.488017,
+   "rss": 415.1875,
+   "size": {
+    "bytes": 597055,
+    "gzip": 179079
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "react",
+   "mode": "minify",
+   "tool": "parcel3",
+   "min": 59.916684,
+   "med": 61.663556,
+   "rss": 131.859375,
+   "size": {
+    "bytes": 598973,
+    "gzip": 180177
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "react",
+   "mode": "minify+map",
+   "tool": "rathkit",
+   "min": 20.252818,
+   "med": 20.615428,
+   "rss": 16.703125,
+   "size": {
+    "bytes": 233416,
+    "gzip": 70126
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "react",
+   "mode": "minify+map",
+   "tool": "esbuild",
+   "min": 22.14867,
+   "med": 22.414704,
+   "rss": 28.90234375,
+   "size": {
+    "bytes": 234542,
+    "gzip": 70422
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "react",
+   "mode": "minify+map",
+   "tool": "rolldown",
+   "min": 112.567459,
+   "med": 115.030993,
+   "rss": 187.328125,
+   "size": {
+    "bytes": 233288,
+    "gzip": 69328
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "react",
+   "mode": "minify+map",
+   "tool": "rspack",
+   "min": 176.470188,
+   "med": 184.980242,
+   "rss": 131.0625,
+   "size": {
+    "bytes": 230596,
+    "gzip": 69583
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "react",
+   "mode": "minify+map",
+   "tool": "vite",
+   "min": 178.256454,
+   "med": 183.865678,
+   "rss": 210.6015625,
+   "size": {
+    "bytes": 281821,
+    "gzip": 72328
+   },
+   "runs": "fails",
+   "failed": null
+  },
+  {
+   "name": "react",
+   "mode": "minify+map",
+   "tool": "webpack",
+   "min": 1471.871979,
+   "med": 1491.043835,
+   "rss": 326.1171875,
+   "size": {
+    "bytes": 231634,
+    "gzip": 69597
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "react",
+   "mode": "minify+map",
+   "tool": "rollup",
+   "min": 2367.592514,
+   "med": 2397.126769,
+   "rss": 517.58203125,
+   "size": {
+    "bytes": 232320,
+    "gzip": 68996
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "react",
+   "mode": "minify+map",
+   "tool": "parcel2",
+   "min": 833.615415,
+   "med": 857.192676,
+   "rss": 505.81640625,
+   "size": {
+    "bytes": 597090,
+    "gzip": 179101
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "react",
+   "mode": "minify+map",
+   "tool": "parcel3",
+   "min": 63.692761,
+   "med": 67.276699,
+   "rss": 186.47265625,
+   "size": {
+    "bytes": 599008,
+    "gzip": 180207
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "rxjs",
+   "mode": "plain",
+   "tool": "rathkit",
+   "min": 10.138749,
+   "med": 10.367348,
+   "rss": 7.18359375,
+   "size": {
+    "bytes": 61348,
+    "gzip": 11461
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "rxjs",
+   "mode": "plain",
+   "tool": "esbuild",
+   "min": 19.001037,
+   "med": 20.048725,
+   "rss": 36.08984375,
+   "size": {
+    "bytes": 398498,
+    "gzip": 46932
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "rxjs",
+   "mode": "plain",
+   "tool": "rolldown",
+   "min": 100.683415,
+   "med": 101.600624,
+   "rss": 183.2265625,
+   "size": {
+    "bytes": 334323,
+    "gzip": 43794
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "rxjs",
+   "mode": "plain",
+   "tool": "rspack",
+   "min": 96.806716,
+   "med": 100.96652,
+   "rss": 109.57421875,
+   "size": {
+    "bytes": 353107,
+    "gzip": 47223
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "rxjs",
+   "mode": "plain",
+   "tool": "vite",
+   "min": 155.948733,
+   "med": 157.186338,
+   "rss": 187.3125,
+   "size": {
+    "bytes": 55759,
+    "gzip": 11531
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "rxjs",
+   "mode": "plain",
+   "tool": "webpack",
+   "min": 534.277147,
+   "med": 541.807305,
+   "rss": 173.16796875,
+   "size": {
+    "bytes": 389280,
+    "gzip": 48881
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "rxjs",
+   "mode": "plain",
+   "tool": "rollup",
+   "min": 2281.021275,
+   "med": 2297.654747,
+   "rss": 359.78125,
+   "size": {
+    "bytes": 57762,
+    "gzip": 11123
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "rxjs",
+   "mode": "plain",
+   "tool": "parcel2",
+   "min": 665.429706,
+   "med": 670.668621,
+   "rss": 382.66796875,
+   "size": {
+    "bytes": 89394,
+    "gzip": 17820
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "rxjs",
+   "mode": "plain",
+   "tool": "parcel3",
+   "min": 19.666218,
+   "med": 21.823408,
+   "rss": 65.2109375,
+   "size": {
+    "bytes": 422709,
+    "gzip": 76901
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "rxjs",
+   "mode": "minify",
+   "tool": "rathkit",
+   "min": 12.040059,
+   "med": 12.382693,
+   "rss": 8.0390625,
+   "size": {
+    "bytes": 25312,
+    "gzip": 7588
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "rxjs",
+   "mode": "minify",
+   "tool": "esbuild",
+   "min": 19.108186,
+   "med": 20.463434,
+   "rss": 35.02734375,
+   "size": {
+    "bytes": 160974,
+    "gzip": 35235
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "rxjs",
+   "mode": "minify",
+   "tool": "rolldown",
+   "min": 107.34362,
+   "med": 112.261822,
+   "rss": 193.10546875,
+   "size": {
+    "bytes": 154524,
+    "gzip": 27854
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "rxjs",
+   "mode": "minify",
+   "tool": "rspack",
+   "min": 148.660781,
+   "med": 151.296258,
+   "rss": 123.9765625,
+   "size": {
+    "bytes": 143738,
+    "gzip": 29127
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "rxjs",
+   "mode": "minify",
+   "tool": "vite",
+   "min": 158.297809,
+   "med": 162.39447,
+   "rss": 189.48828125,
+   "size": {
+    "bytes": 35765,
+    "gzip": 8560
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "rxjs",
+   "mode": "minify",
+   "tool": "webpack",
+   "min": 1409.23534,
+   "med": 1413.889951,
+   "rss": 328.1171875,
+   "size": {
+    "bytes": 146429,
+    "gzip": 28657
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "rxjs",
+   "mode": "minify",
+   "tool": "rollup",
+   "min": 2495.144468,
+   "med": 2534.4406,
+   "rss": 405.4296875,
+   "size": {
+    "bytes": 22208,
+    "gzip": 6753
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "rxjs",
+   "mode": "minify",
+   "tool": "parcel2",
+   "min": 670.774326,
+   "med": 684.84506,
+   "rss": 412.71875,
+   "size": {
+    "bytes": 22351,
+    "gzip": 6887
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "rxjs",
+   "mode": "minify",
+   "tool": "parcel3",
+   "min": 26.617875,
+   "med": 27.237936,
+   "rss": 64.44921875,
+   "size": {
+    "bytes": 179385,
+    "gzip": 40100
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "rxjs",
+   "mode": "minify+map",
+   "tool": "rathkit",
+   "min": 14.728665,
+   "med": 15.014276,
+   "rss": 9.2890625,
+   "size": {
+    "bytes": 25346,
+    "gzip": 7615
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "rxjs",
+   "mode": "minify+map",
+   "tool": "esbuild",
+   "min": 25.592679,
+   "med": 26.840171,
+   "rss": 48.90234375,
+   "size": {
+    "bytes": 161007,
+    "gzip": 35264
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "rxjs",
+   "mode": "minify+map",
+   "tool": "rolldown",
+   "min": 111.030849,
+   "med": 119.524607,
+   "rss": 223.61328125,
+   "size": {
+    "bytes": 154557,
+    "gzip": 27884
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "rxjs",
+   "mode": "minify+map",
+   "tool": "rspack",
+   "min": 156.9374,
+   "med": 168.745908,
+   "rss": 130.15234375,
+   "size": {
+    "bytes": 143771,
+    "gzip": 29157
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "rxjs",
+   "mode": "minify+map",
+   "tool": "vite",
+   "min": 155.611435,
+   "med": 163.237237,
+   "rss": 203.87890625,
+   "size": {
+    "bytes": 35798,
+    "gzip": 8586
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "rxjs",
+   "mode": "minify+map",
+   "tool": "webpack",
+   "min": 1468.39421,
+   "med": 1470.890586,
+   "rss": 342.3828125,
+   "size": {
+    "bytes": 146462,
+    "gzip": 28685
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "rxjs",
+   "mode": "minify+map",
+   "tool": "rollup",
+   "min": 2515.618841,
+   "med": 2542.096962,
+   "rss": 400.53125,
+   "size": {
+    "bytes": 22241,
+    "gzip": 6781
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "rxjs",
+   "mode": "minify+map",
+   "tool": "parcel2",
+   "min": 684.711764,
+   "med": 697.686818,
+   "rss": 428.9921875,
+   "size": {
+    "bytes": 22385,
+    "gzip": 6919
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "rxjs",
+   "mode": "minify+map",
+   "tool": "parcel3",
+   "min": 27.412446,
+   "med": 29.23758,
+   "rss": 92.28125,
+   "size": {
+    "bytes": 179419,
+    "gzip": 40101
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "app1500",
+   "mode": "plain",
+   "tool": "rathkit",
+   "min": 93.187558,
+   "med": 95.239344,
+   "rss": 76.78125,
+   "size": {
+    "bytes": 129032,
+    "gzip": 21584
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "app1500",
+   "mode": "plain",
+   "tool": "esbuild",
+   "min": 472.132896,
+   "med": 478.5741,
+   "rss": 361.6328125,
+   "size": {
+    "bytes": 205101,
+    "gzip": 31870
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "app1500",
+   "mode": "plain",
+   "tool": "rolldown",
+   "min": 207.679341,
+   "med": 208.967964,
+   "rss": 450.765625,
+   "size": {
+    "bytes": 184964,
+    "gzip": 27601
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "app1500",
+   "mode": "plain",
+   "tool": "rspack",
+   "min": 562.887623,
+   "med": 569.098992,
+   "rss": 231.6875,
+   "size": {
+    "bytes": 2881418,
+    "gzip": 221038
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "app1500",
+   "mode": "plain",
+   "tool": "vite",
+   "min": 296.287423,
+   "med": 306.24126,
+   "rss": 480.7578125,
+   "size": {
+    "bytes": 184951,
+    "gzip": 27585
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "app1500",
+   "mode": "plain",
+   "tool": "webpack",
+   "min": 1795.791172,
+   "med": 1835.674316,
+   "rss": 421.9140625,
+   "size": {
+    "bytes": 2849799,
+    "gzip": 220767
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "app1500",
+   "mode": "plain",
+   "tool": "rollup",
+   "min": 4870.230194,
+   "med": 4924.064358,
+   "rss": 774.47265625,
+   "size": {
+    "bytes": 2671,
+    "gzip": 1024
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "app1500",
+   "mode": "plain",
+   "tool": "parcel2",
+   "min": null,
+   "med": null,
+   "rss": null,
+   "size": null,
+   "runs": "-",
+   "failed": "Command exited with non-zero status 1 | 580116"
+  },
+  {
+   "name": "app1500",
+   "mode": "plain",
+   "tool": "parcel3",
+   "min": 186.726756,
+   "med": 190.324126,
+   "rss": 256.34375,
+   "size": {
+    "bytes": 7157733,
+    "gzip": 660316
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "app1500",
+   "mode": "minify",
+   "tool": "rathkit",
+   "min": 97.759555,
+   "med": 98.406805,
+   "rss": 79.48046875,
+   "size": {
+    "bytes": 82280,
+    "gzip": 20022
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "app1500",
+   "mode": "minify",
+   "tool": "esbuild",
+   "min": 469.239073,
+   "med": 476.762372,
+   "rss": 362.46484375,
+   "size": {
+    "bytes": 94150,
+    "gzip": 25298
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "app1500",
+   "mode": "minify",
+   "tool": "rolldown",
+   "min": 206.916847,
+   "med": 210.17051,
+   "rss": 448.546875,
+   "size": {
+    "bytes": 82292,
+    "gzip": 20062
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "app1500",
+   "mode": "minify",
+   "tool": "rspack",
+   "min": 759.18323,
+   "med": 770.721744,
+   "rss": 351.6484375,
+   "size": {
+    "bytes": 639,
+    "gzip": 392
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "app1500",
+   "mode": "minify",
+   "tool": "vite",
+   "min": 300.280742,
+   "med": 301.49887,
+   "rss": 480.92578125,
+   "size": {
+    "bytes": 159189,
+    "gzip": 24714
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "app1500",
+   "mode": "minify",
+   "tool": "webpack",
+   "min": 3920.260887,
+   "med": 3963.164596,
+   "rss": 993.03125,
+   "size": {
+    "bytes": 82251,
+    "gzip": 17493
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "app1500",
+   "mode": "minify",
+   "tool": "rollup",
+   "min": 4939.091833,
+   "med": 4950.770994,
+   "rss": 795.203125,
+   "size": {
+    "bytes": 2705,
+    "gzip": 1032
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "app1500",
+   "mode": "minify",
+   "tool": "parcel2",
+   "min": null,
+   "med": null,
+   "rss": null,
+   "size": null,
+   "runs": "-",
+   "failed": "Command exited with non-zero status 1 | 577540"
+  },
+  {
+   "name": "app1500",
+   "mode": "minify",
+   "tool": "parcel3",
+   "min": 170.489199,
+   "med": 174.671734,
+   "rss": 231.59765625,
+   "size": {
+    "bytes": 415321,
+    "gzip": 68134
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "app1500",
+   "mode": "minify+map",
+   "tool": "rathkit",
+   "min": 112.159745,
+   "med": 115.734874,
+   "rss": 91.3203125,
+   "size": {
+    "bytes": 82314,
+    "gzip": 20064
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "app1500",
+   "mode": "minify+map",
+   "tool": "esbuild",
+   "min": 486.310309,
+   "med": 489.152915,
+   "rss": 380.52734375,
+   "size": {
+    "bytes": 94183,
+    "gzip": 25335
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "app1500",
+   "mode": "minify+map",
+   "tool": "rolldown",
+   "min": 216.771384,
+   "med": 221.413101,
+   "rss": 466.0390625,
+   "size": {
+    "bytes": 82325,
+    "gzip": 20093
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "app1500",
+   "mode": "minify+map",
+   "tool": "rspack",
+   "min": 776.566435,
+   "med": 789.904864,
+   "rss": 352.7734375,
+   "size": {
+    "bytes": 650,
+    "gzip": 401
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "app1500",
+   "mode": "minify+map",
+   "tool": "vite",
+   "min": 307.528412,
+   "med": 313.65651,
+   "rss": 499.15234375,
+   "size": {
+    "bytes": 159222,
+    "gzip": 24747
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "app1500",
+   "mode": "minify+map",
+   "tool": "webpack",
+   "min": 4048.530378,
+   "med": 4110.850477,
+   "rss": 1039.3515625,
+   "size": {
+    "bytes": 82284,
+    "gzip": 17536
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "app1500",
+   "mode": "minify+map",
+   "tool": "rollup",
+   "min": 4929.644195,
+   "med": 5001.523035,
+   "rss": 794.07421875,
+   "size": {
+    "bytes": 2708,
+    "gzip": 1035
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "app1500",
+   "mode": "minify+map",
+   "tool": "parcel2",
+   "min": null,
+   "med": null,
+   "rss": null,
+   "size": null,
+   "runs": "-",
+   "failed": "Command exited with non-zero status 1 | 629420"
+  },
+  {
+   "name": "app1500",
+   "mode": "minify+map",
+   "tool": "parcel3",
+   "min": 176.195669,
+   "med": 178.365586,
+   "rss": 239.63671875,
+   "size": {
+    "bytes": 415355,
+    "gzip": 68491
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "tsapp500",
+   "mode": "plain",
+   "tool": "rathkit",
+   "min": 25.244869,
+   "med": 25.690656,
+   "rss": 15.00390625,
+   "size": {
+    "bytes": 288374,
+    "gzip": 30525
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "tsapp500",
+   "mode": "plain",
+   "tool": "esbuild",
+   "min": 50.69238,
+   "med": 52.684318,
+   "rss": 50.65234375,
+   "size": {
+    "bytes": 373281,
+    "gzip": 36095
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "tsapp500",
+   "mode": "plain",
+   "tool": "rolldown",
+   "min": 129.018219,
+   "med": 137.708163,
+   "rss": 176.91015625,
+   "size": {
+    "bytes": 335312,
+    "gzip": 32330
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "tsapp500",
+   "mode": "plain",
+   "tool": "rspack",
+   "min": 319.931978,
+   "med": 322.774471,
+   "rss": 127.8359375,
+   "size": {
+    "bytes": 1277045,
+    "gzip": 74329
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "tsapp500",
+   "mode": "plain",
+   "tool": "vite",
+   "min": 211.116671,
+   "med": 214.727947,
+   "rss": 190.35546875,
+   "size": {
+    "bytes": 341297,
+    "gzip": 32345
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "tsapp500",
+   "mode": "plain",
+   "tool": "webpack",
+   "min": 901.143623,
+   "med": 909.069076,
+   "rss": 255.0078125,
+   "size": {
+    "bytes": 1257433,
+    "gzip": 69562
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "tsapp500",
+   "mode": "plain",
+   "tool": "rollup",
+   "min": 1606.220848,
+   "med": 1630.105373,
+   "rss": 372.6328125,
+   "size": {
+    "bytes": 340762,
+    "gzip": 31764
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "tsapp500",
+   "mode": "plain",
+   "tool": "parcel2",
+   "min": 1144.094225,
+   "med": 1175.777128,
+   "rss": 490.98828125,
+   "size": {
+    "bytes": 494372,
+    "gzip": 64680
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "tsapp500",
+   "mode": "plain",
+   "tool": "parcel3",
+   "min": 66.303136,
+   "med": 69.728391,
+   "rss": 72.984375,
+   "size": {
+    "bytes": 707943,
+    "gzip": 76673
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "tsapp500",
+   "mode": "minify",
+   "tool": "rathkit",
+   "min": 29.748672,
+   "med": 29.989846,
+   "rss": 21.91015625,
+   "size": {
+    "bytes": 176355,
+    "gzip": 20080
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "tsapp500",
+   "mode": "minify",
+   "tool": "esbuild",
+   "min": 50.912762,
+   "med": 52.871132,
+   "rss": 49.77734375,
+   "size": {
+    "bytes": 191887,
+    "gzip": 23263
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "tsapp500",
+   "mode": "minify",
+   "tool": "rolldown",
+   "min": 133.805819,
+   "med": 140.055729,
+   "rss": 187.0703125,
+   "size": {
+    "bytes": 202370,
+    "gzip": 20360
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "tsapp500",
+   "mode": "minify",
+   "tool": "rspack",
+   "min": 463.294053,
+   "med": 468.068761,
+   "rss": 155.375,
+   "size": {
+    "bytes": 524639,
+    "gzip": 42392
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "tsapp500",
+   "mode": "minify",
+   "tool": "vite",
+   "min": 218.063506,
+   "med": 221.278538,
+   "rss": 196.828125,
+   "size": {
+    "bytes": 269454,
+    "gzip": 23006
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "tsapp500",
+   "mode": "minify",
+   "tool": "webpack",
+   "min": 3718.361375,
+   "med": 3773.954802,
+   "rss": 491.1171875,
+   "size": {
+    "bytes": 554423,
+    "gzip": 33209
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "tsapp500",
+   "mode": "minify",
+   "tool": "rollup",
+   "min": 2338.866574,
+   "med": 2369.079239,
+   "rss": 510.640625,
+   "size": {
+    "bytes": 189019,
+    "gzip": 21705
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "tsapp500",
+   "mode": "minify",
+   "tool": "parcel2",
+   "min": 1185.734949,
+   "med": 1238.014219,
+   "rss": 532.78515625,
+   "size": {
+    "bytes": 177130,
+    "gzip": 30869
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "tsapp500",
+   "mode": "minify",
+   "tool": "parcel3",
+   "min": 71.885831,
+   "med": 73.221734,
+   "rss": 77.08203125,
+   "size": {
+    "bytes": 277721,
+    "gzip": 30054
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "tsapp500",
+   "mode": "minify+map",
+   "tool": "rathkit",
+   "min": 36.591686,
+   "med": 37.50505,
+   "rss": 26.4140625,
+   "size": {
+    "bytes": 176389,
+    "gzip": 20119
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "tsapp500",
+   "mode": "minify+map",
+   "tool": "esbuild",
+   "min": 53.814248,
+   "med": 56.393201,
+   "rss": 54.90234375,
+   "size": {
+    "bytes": 191920,
+    "gzip": 23293
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "tsapp500",
+   "mode": "minify+map",
+   "tool": "rolldown",
+   "min": 140.791723,
+   "med": 143.5602,
+   "rss": 191.5703125,
+   "size": {
+    "bytes": 202403,
+    "gzip": 20399
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "tsapp500",
+   "mode": "minify+map",
+   "tool": "rspack",
+   "min": 501.705132,
+   "med": 512.738937,
+   "rss": 178.0078125,
+   "size": {
+    "bytes": 524672,
+    "gzip": 42437
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "tsapp500",
+   "mode": "minify+map",
+   "tool": "vite",
+   "min": 222.802519,
+   "med": 227.027608,
+   "rss": 207.03125,
+   "size": {
+    "bytes": 269487,
+    "gzip": 23040
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "tsapp500",
+   "mode": "minify+map",
+   "tool": "webpack",
+   "min": 3757.095542,
+   "med": 3800.481302,
+   "rss": 532.19921875,
+   "size": {
+    "bytes": 554456,
+    "gzip": 33247
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "tsapp500",
+   "mode": "minify+map",
+   "tool": "rollup",
+   "min": 2430.879511,
+   "med": 2446.189717,
+   "rss": 515.203125,
+   "size": {
+    "bytes": 189052,
+    "gzip": 21738
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "tsapp500",
+   "mode": "minify+map",
+   "tool": "parcel2",
+   "min": 1359.381646,
+   "med": 1386.25048,
+   "rss": 571.828125,
+   "size": {
+    "bytes": 177164,
+    "gzip": 30917
+   },
+   "runs": "same",
+   "failed": null
+  },
+  {
+   "name": "tsapp500",
+   "mode": "minify+map",
+   "tool": "parcel3",
+   "min": 74.579217,
+   "med": 75.193149,
+   "rss": 83.02734375,
+   "size": {
+    "bytes": 277755,
+    "gzip": 30172
+   },
+   "runs": "same",
+   "failed": null
+  }
+ ]
+}
