@@ -182,7 +182,7 @@ for (const [name, meta] of Object.entries(workloads)) {
   if (doRebuild) {
     for (const mode of rebuildModes) {
       for (const tool of selected) {
-        const r = await measureRebuild({ tool, name, meta, mode, tools, workDir, edits });
+        const r = await measureRebuild({ tool, name, meta, mode, tools, workDir, edits }).catch((e) => ({ start: null, times: [], rss: null, failed: `harness: ${e.message}` }));
         rebuild.push({ name, mode, tool, ...r });
         console.log(`${name.padEnd(9)} rebuild ${mode.padEnd(7)} ${tool.padEnd(8)} ${r.unsupported ? 'n/a: ' + r.unsupported : r.failed && !r.times.length ? 'FAILED ' + r.failed : `first build ${r.start?.toFixed(0)} ms, rebuild ${fmt(r)}${r.failed ? ` (${r.failed})` : ''}`}`);
         save();
@@ -192,7 +192,7 @@ for (const [name, meta] of Object.entries(workloads)) {
   if (doDev && meta.web) {
     for (const tool of selected) {
       if (!devTools[tool]) continue;
-      const r = await measureDev({ tool, name, meta, workDir, runs, edits });
+      const r = await measureDev({ tool, name, meta, workDir, runs, edits }).catch((e) => ({ start: [], hmr: [], failed: `harness: ${e.message}` }));
       dev.push({ name, tool, ...r });
       console.log(`${name.padEnd(9)} dev     ${tool.padEnd(8)} ${r.failed ? 'FAILED ' + r.failed : `start med ${r.startMed?.toFixed(0)} ms (${r.files} files), hmr med ${r.hmrMed?.toFixed(1) ?? '-'} ms ${r.hmrType ?? ''}${r.hmrFailed ? ` (${r.hmrFailed})` : ''}, rss ${r.rss?.toFixed(0)} MB`}`);
       save();
@@ -204,7 +204,7 @@ for (const [name, meta] of Object.entries(workloads)) {
     console.log(`${name.padEnd(9)} check   tsc      ${base.withCheck.failed ?? fmt(base.withCheck)}`);
     for (const tool of selected) {
       if (!setups[tool]) continue;
-      const r = await measureCheck({ tool, name, meta, tools, workDir, runs });
+      const r = await measureCheck({ tool, name, meta, tools, workDir, runs }).catch((e) => ({ name, tool, failed: `harness: ${e.message}`, buildOnly: {}, withCheck: {} }));
       typecheck.push(r);
       console.log(`${name.padEnd(9)} check   ${tool.padEnd(8)} ${r.failed ?? `build ${fmt(r.buildOnly)} | with check ${fmt(r.withCheck)}`}`);
       save();

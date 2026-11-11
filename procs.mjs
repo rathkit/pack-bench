@@ -18,7 +18,7 @@ const snapshot = () => {
       const stat = readFileSync(`/proc/${name}/stat`, 'utf8');
       const rest = stat.slice(stat.lastIndexOf(')') + 2).split(' ');
       const status = readFileSync(`/proc/${name}/status`, 'utf8');
-      all.push({ pid: Number(name), ppid: Number(rest[1]), pgrp: Number(rest[2]), rss: kb(status, 'VmRSS'), hwm: kb(status, 'VmHWM') });
+      all.push({ pid: Number(name), state: rest[0], ppid: Number(rest[1]), pgrp: Number(rest[2]), rss: kb(status, 'VmRSS'), hwm: kb(status, 'VmHWM') });
     } catch {}
   }
   return all;
@@ -57,7 +57,8 @@ export class Running {
   async stop() {
     this.sample();
     clearInterval(this.timer);
-    const group = () => snapshot().filter((p) => p.pgrp === this.pid);
+    // A zombie is a dead process nobody has collected (the container has no init to do it); it holds nothing, so it does not count.
+    const group = () => snapshot().filter((p) => p.pgrp === this.pid && p.state !== 'Z');
     try {
       process.kill(-this.pid, 'SIGTERM');
     } catch {}
@@ -69,7 +70,8 @@ export class Running {
       for (let i = 0; i < 40 && group().length; i++) await sleep(50);
     }
     const left = group();
-    if (left.length) throw new Error(`processes left after stopping ${this.pid}: ${left.map((p) => p.pid).join(',')}`);
+    this.left = left.map((p) => p.pid);
+    return this.left;
   }
 }
 

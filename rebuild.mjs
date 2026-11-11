@@ -93,7 +93,8 @@ export const measureRebuild = async ({ tool, name, meta, mode, tools, workDir, e
     result.failed = String(e.message ?? e);
   } finally {
     writeFileSync(editFile, original);
-    await running.stop();
+    const left = await running.stop();
+    if (left.length) result.leftover = left;
     rmSync(proj, { recursive: true, force: true });
     rmSync(dir, { recursive: true, force: true });
   }

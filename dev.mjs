@@ -214,7 +214,8 @@ export const measureDev = async ({ tool, name, meta, workDir, runs = 7, edits = 
         }
       } finally {
         stop?.();
-        await running.stop();
+        const left = await running.stop();
+        if (left.length) result.leftover = left;
       }
     }
   } catch (e) {
