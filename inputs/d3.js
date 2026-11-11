@@ -1,0 +1,10 @@
+import { scaleLinear, scaleTime, scaleOrdinal, schemeCategory10, line, area, curveMonotoneX, extent, max, min, mean, sum, range, format, timeFormat, timeDay, rollup, group, bisector, interpolateRgb, hierarchy, treemap, pack, stack, arc, pie, histogram, quantile, descending, ascending } from 'd3';
+const data = range(40).map((i) => ({ day: timeDay.offset(new Date(Date.UTC(2026, 0, 1)), i), value: Math.round(50 + 30 * Math.sin(i / 4) + i), group: 'abc'[i % 3] }));
+const x = scaleTime().domain(extent(data, (d) => d.day)).range([0, 600]);
+const y = scaleLinear().domain([0, max(data, (d) => d.value)]).nice().range([300, 0]);
+const l = line().x((d) => x(d.day)).y((d) => y(d.value)).curve(curveMonotoneX);
+const a = area().x((d) => x(d.day)).y0(300).y1((d) => y(d.value));
+const color = scaleOrdinal(schemeCategory10);
+const tree = hierarchy({ name: 'root', children: [...rollup(data, (v) => sum(v, (d) => d.value), (d) => d.group)].map(([name, value]) => ({ name, value })) }).sum((d) => d.value ?? 0);
+console.log(l(data).length, a(data).length, color('a'), format(',.2f')(mean(data, (d) => d.value)), timeFormat('%Y-%m-%d')(x.invert(300)));
+console.log(treemap().size([100, 100])(tree).leaves().length, pack().size([100, 100])(tree).r.toFixed(1), pie()(data.slice(0, 4).map((d) => d.value)).length, arc()({ innerRadius: 0, outerRadius: 10, startAngle: 0, endAngle: 1 }).length, histogram().thresholds(5)(data.map((d) => d.value)).length, quantile(data.map((d) => d.value).sort(ascending), 0.5), stack().keys(['a'])([{ a: 1 }]).length, interpolateRgb('red', 'blue')(0.5), bisector((d) => d.day).left(data, data[5].day), group(data, (d) => d.group).size, min(data, (d) => d.value), data.sort((p, q) => descending(p.value, q.value))[0].value);

@@ -18,14 +18,12 @@ import { spawnSync } from 'node:child_process';
 import { mkdirSync, writeFileSync, readFileSync, readdirSync, statSync, rmSync, existsSync, renameSync, realpathSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import os from 'node:os';
-import { join, dirname, basename, extname } from 'node:path';
-import { createRequire } from 'node:module';
+import { join, dirname } from 'node:path';
 import { gzipSync } from 'node:zlib';
-import { fileURLToPath } from 'node:url';
-import { builtinModules } from 'node:module';
-
-const here = dirname(fileURLToPath(import.meta.url));
-const RK = process.env.RATHKIT_PACK_BIN ?? join(here, '..', 'target', 'release', 'rkp');
+import { here, RK, workloads, createTools, toolVersions, toolExecutables } from './lib.mjs';
+import { measureRebuild } from './rebuild.mjs';
+import { measureDev, devTools, noDevServer } from './dev.mjs';
+import { measureCheck, measureTsc, setups } from './typecheck.mjs';
 
 const args = process.argv.slice(2);
 const option = (name, fallback) => {
@@ -43,136 +41,28 @@ const markdown = args.includes('--markdown') && args.splice(args.indexOf('--mark
 const allModes = { plain: { minify: false, map: false }, minify: { minify: true, map: false }, 'minify+map': { minify: true, map: true } };
 const modeNames = option('--modes', Object.keys(allModes).join(',')).split(',');
 const production = env === 'production';
+const flag = (name) => args.includes(name) && args.splice(args.indexOf(name), 1).length > 0;
+// Other measurements, each switched on by a flag: --rebuild (warm rebuild in the tool's watch mode), --dev (server start and HMR latency),
+// --typecheck (build plus type check, TypeScript workloads only). --no-build leaves out the build table (for developing the others).
+const doRebuild = flag('--rebuild');
+const doDev = flag('--dev');
+const doCheck = flag('--typecheck');
+const noBuild = flag('--no-build');
+const edits = Number(option('--edits', 7));
+const rebuildModes = option('--rebuild-modes', 'plain,minify').split(',');
 // How each tool is started: 'direct' is the tool's own entry point (esbuild's and Parcel 3's native executables; `node <the package's bin file>` for the
 // Node tools), never the package manager's shell shim in node_modules/.bin, which would add a shell and a Node start-up to the time. Recorded in results.json.
 const launch = 'direct';
 
-const workloads = {
-  ts5: 'inputs/ts5.js',
-  three: 'inputs/three.js',
-  lodash: 'inputs/lodash.js',
-  react: 'inputs/react.js',
-  rxjs: 'inputs/rxjs.js',
-  app1500: 'inputs/generated/app1500/main.js',
-  tsapp500: 'inputs/generated/tsapp500/main.ts',
-};
-// three needs a browser to run; the others print something every tool must agree on.
-const runnable = new Set(['ts5', 'react', 'rxjs', 'app1500', 'tsapp500']);
-const externals = [...builtinModules, ...builtinModules.map((m) => 'node:' + m)];
-const NODE_ENV = '"production"';
-
-
-const pkgDir = (name) => realpathSync(join(here, 'node_modules', name));
-// The file a package's `bin` field names.
-const pkgBin = (name, binName) => {
-  const dir = pkgDir(name);
-  const field = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8')).bin;
-  return join(dir, typeof field === 'string' ? field : field[binName]);
-};
-// esbuild's native executable, from the platform package that sits next to esbuild (the install script that would link it is not run).
-const esbuildBinary = () => createRequire(join(pkgDir('esbuild'), 'package.json')).resolve(`@esbuild/${process.platform}-${process.arch}/bin/${process.platform === 'win32' ? 'esbuild.exe' : 'esbuild'}`);
-const pkgVersion = (name) => JSON.parse(readFileSync(join(here, 'node_modules', name, 'package.json'), 'utf8')).version;
-
-// Parcel 3 is a native executable that npm installs as a platform package; the `parcel3` launcher is a Node script that starts it,
-// and timing it would add a Node start-up, so the executable is run directly.
-const parcel3Binary = () => {
-  const need = createRequire(realpathSync(join(here, 'node_modules', 'parcel3', 'package.json')));
-  const base = `@parcel/parcel3-${process.platform}-${process.arch}`;
-  const exe = process.platform === 'win32' ? 'parcel.exe' : 'parcel';
-  for (const pkg of [base, `${base}-gnu`, `${base}-musl`]) {
-    try {
-      return need.resolve(`${pkg}/${exe}`);
-    } catch {}
-  }
-  throw new Error(`no Parcel 3 executable for ${process.platform} ${process.arch}`);
-};
-// Both Parcel versions build from the \`targets\` in package.json (a Node ES module, node_modules included), write to the folder of the case,
-// and name the file after the entry; the file is renamed to out.mjs afterwards. Parcel 2 is told not to keep its disk cache
-// so that every run is a cold build; Parcel 3 has none. Without --optimize Parcel does not minify and does not scope-hoist.
-const parcelCase = ({ entry, minify, map, dir }) => ({
-  entryPath: join(here, entry),
-  flags: ['--dist-dir', dir, '--no-content-hash', '--log-level', 'error', ...(minify ? [] : ['--no-optimize']), ...(map ? [] : ['--no-source-maps'])],
-  produced: join(dir, basename(entry, extname(entry)) + '.js'),
-});
-
-const tools = {
-  rathkit: ({ entry, out, minify, map }) => ({ cmd: RK, args: ['bundle', entry, '--outfile', out, '--no-config', ...(production ? ['--define', `process.env.NODE_ENV=${NODE_ENV}`] : []), ...(minify ? ['--minify'] : []), ...(map ? ['--sourcemap'] : [])] }),
-  esbuild: ({ entry, out, minify, map }) => ({ cmd: esbuildBinary(), args: [entry, '--bundle', '--format=esm', '--platform=node', `--outfile=${out}`, '--log-level=error', '--banner:js=import { createRequire as __rkRequire } from "node:module"; import { fileURLToPath as __rkPath } from "node:url"; import { dirname as __rkDir } from "node:path"; const require = __rkRequire(import.meta.url), __filename = __rkPath(import.meta.url), __dirname = __rkDir(__filename);', ...(production ? [`--define:process.env.NODE_ENV=${NODE_ENV}`] : []), ...(minify ? ['--minify'] : []), ...(map ? ['--sourcemap'] : [])] }),
-  rolldown: ({ entry, out, minify, map }) => ({ cmd: process.execPath, args: [pkgBin('rolldown', 'rolldown'), entry, '--file', out, '--format', 'esm', '--platform', 'node', ...(production ? ['--transform.define', `process.env.NODE_ENV=${NODE_ENV}`] : []), ...(minify ? ['--minify'] : []), ...(map ? ['--sourcemap'] : [])] }),
-  rspack: ({ entry, out, minify, map, dir }) => {
-    const config = join(dir, 'rspack.config.mjs');
-    writeFileSync(
-      config,
-      `export default { mode: 'production', context: ${JSON.stringify(here)}, entry: ${JSON.stringify(join(here, entry))}, target: 'node', externalsPresets: { node: true }, devtool: ${map ? "'source-map'" : 'false'}, optimization: { minimize: ${minify}, nodeEnv: ${production ? "'production'" : 'false'} }, experiments: { outputModule: true }, resolve: { extensions: ['.ts', '.js', '.mjs', '.json'] }, module: { rules: [{ test: /\\.ts$/, loader: 'builtin:swc-loader', options: { jsc: { parser: { syntax: 'typescript' } } }, type: 'javascript/auto' }] }, output: { path: ${JSON.stringify(dirname(out))}, filename: ${JSON.stringify(out.split('/').pop())}, module: true, library: { type: 'module' }, chunkFormat: 'module' }, stats: 'errors-only' };\n`,
-    );
-    return { cmd: process.execPath, args: [pkgBin('@rspack/cli', 'rspack'), 'build', '--config', config] };
-  },
-  vite: ({ entry, out, minify, map, dir }) => {
-    // The values reach the config as data (a JSON file read at run time), never spliced into code.
-    const config = join(dir, 'vite.config.mjs');
-    const values = join(dir, 'vite.values.json');
-    writeFileSync(values, JSON.stringify({ root: here, entry: join(here, entry), outDir: dirname(out), fileName: out.split('/').pop(), minify: minify ? 'oxc' : false, sourcemap: map, define: production ? { 'process.env.NODE_ENV': NODE_ENV } : {}, external: externals }));
-    writeFileSync(
-      config,
-      `import { readFileSync } from 'node:fs';\nconst v = JSON.parse(readFileSync(new URL('./vite.values.json', import.meta.url), 'utf8'));\nexport default { root: v.root, logLevel: 'error', configFile: false, define: v.define, build: { outDir: v.outDir, emptyOutDir: false, minify: v.minify, sourcemap: v.sourcemap, target: 'esnext', lib: { entry: v.entry, formats: ['es'], fileName: () => v.fileName }, rollupOptions: { external: v.external } } };\n`,
-    );
-    return { cmd: process.execPath, args: [pkgBin('vite', 'vite'), 'build', '--config', config] };
-  },
-  // webpack: the same options as the rspack case (production mode, minimizing and the NODE_ENV define switched by the case), with swc-loader for
-  // TypeScript (type stripping only, no type check) and webpack's own default minimizer (terser).
-  webpack: ({ entry, out, minify, map, dir }) => {
-    const config = join(dir, 'webpack.config.mjs');
-    const loader = createRequire(join(here, 'package.json')).resolve('swc-loader');
-    writeFileSync(
-      config,
-      `export default { mode: 'production', context: ${JSON.stringify(here)}, entry: ${JSON.stringify(join(here, entry))}, target: 'node', externalsPresets: { node: true }, devtool: ${map ? "'source-map'" : 'false'}, optimization: { minimize: ${minify}, nodeEnv: ${production ? "'production'" : 'false'} }, experiments: { outputModule: true }, resolve: { extensions: ['.ts', '.js', '.mjs', '.json'] }, module: { rules: [{ test: /\\.ts$/, loader: ${JSON.stringify(loader)}, options: { jsc: { parser: { syntax: 'typescript' } } } }] }, output: { path: ${JSON.stringify(dirname(out))}, filename: ${JSON.stringify(out.split('/').pop())}, module: true, library: { type: 'module' }, chunkFormat: 'module' }, stats: 'errors-only' };\n`,
-    );
-    return { cmd: process.execPath, args: [pkgBin('webpack-cli', 'webpack-cli'), 'build', '--config', config] };
-  },
-  // Rollup: node-resolve and commonjs (it reads neither on its own), replace for the NODE_ENV define, @rollup/plugin-typescript with its type checking
-  // off (noCheck) for TypeScript, and @rollup/plugin-terser for the minified cases (Rollup has no minifier of its own). The plugins are loaded
-  // from this folder's node_modules, because the config is written to the work folder.
-  rollup: ({ entry, out, minify, map, dir }) => {
-    const config = join(dir, 'rollup.config.mjs');
-    const plugins = [
-      production ? `load('@rollup/plugin-replace')({ preventAssignment: true, values: { 'process.env.NODE_ENV': ${JSON.stringify(NODE_ENV)} } })` : null,
-      `load('@rollup/plugin-node-resolve')({ preferBuiltins: true, extensions: ['.mjs', '.js', '.json', '.ts'] })`,
-      `load('@rollup/plugin-commonjs')()`,
-      `load('@rollup/plugin-typescript')({ tsconfig: false, compilerOptions: { noCheck: true, module: 'esnext', target: 'esnext', moduleResolution: 'bundler' } })`,
-      minify ? `load('@rollup/plugin-terser')()` : null,
-    ].filter(Boolean);
-    writeFileSync(
-      config,
-      `import { createRequire } from 'node:module';\nconst r = createRequire(${JSON.stringify(join(here, 'package.json'))});\nconst load = (name) => { const m = r(name); return m.default ?? m; };\nexport default { input: ${JSON.stringify(join(here, entry))}, external: ${JSON.stringify(externals)}, plugins: [${plugins.join(', ')}], output: { file: ${JSON.stringify(out)}, format: 'es', sourcemap: ${map} }, onwarn() {} };\n`,
-    );
-    return { cmd: process.execPath, args: [pkgBin('rollup', 'rollup'), '--config', config, '--silent'] };
-  },
-  parcel2: (c) => {
-    const p = parcelCase(c);
-    return { cmd: process.execPath, args: [join(here, 'node_modules/parcel2/lib/bin.js'), 'build', p.entryPath, '--no-cache', '--no-autoinstall', ...p.flags], produced: p.produced };
-  },
-  parcel3: (c) => {
-    const p = parcelCase(c);
-    return { cmd: parcel3Binary(), args: ['build', p.entryPath, ...p.flags], produced: p.produced };
-  },
-};
+const tools = createTools({ production });
 const selected = option('--tools', 'rathkit').split(',');
-const toolVersions = () => ({
-  esbuild: pkgVersion('esbuild'),
-  rolldown: pkgVersion('rolldown'),
-  rspack: `${pkgVersion('@rspack/core')} (cli ${pkgVersion('@rspack/cli')})`,
-  vite: pkgVersion('vite'),
-  webpack: `${pkgVersion('webpack')} (webpack-cli ${pkgVersion('webpack-cli')}, swc-loader ${pkgVersion('swc-loader')}, @swc/core ${pkgVersion('@swc/core')})`,
-  rollup: `${pkgVersion('rollup')} (node-resolve ${pkgVersion('@rollup/plugin-node-resolve')}, commonjs ${pkgVersion('@rollup/plugin-commonjs')}, replace ${pkgVersion('@rollup/plugin-replace')}, typescript ${pkgVersion('@rollup/plugin-typescript')}, terser ${pkgVersion('@rollup/plugin-terser')})`,
-  parcel2: pkgVersion('parcel2'),
-  parcel3: pkgVersion('parcel3'),
-});
 if (listTools) {
   const versions = toolVersions();
-  const executables = { esbuild: esbuildBinary(), rolldown: pkgBin('rolldown', 'rolldown'), rspack: pkgBin('@rspack/cli', 'rspack'), vite: pkgBin('vite', 'vite'), webpack: pkgBin('webpack-cli', 'webpack-cli'), rollup: pkgBin('rollup', 'rollup'), parcel2: join(here, 'node_modules/parcel2/lib/bin.js'), parcel3: parcel3Binary() };
+  const executables = toolExecutables();
   for (const [tool, version] of Object.entries(versions)) {
-    if (!existsSync(executables[tool])) throw new Error(`${tool}: no executable at ${executables[tool]}`);
-    console.log(`${tool.padEnd(8)} ${version}  ${executables[tool]}`);
+    // Packages that are not started on their own (a checker plugin, a dev server) have no executable to check.
+    if (executables[tool] && !existsSync(executables[tool])) throw new Error(`${tool}: no executable at ${executables[tool]}`);
+    console.log(`${tool.padEnd(8)} ${version}  ${executables[tool] ?? ''}`.trimEnd());
   }
   console.log(`node     ${process.version}`);
   process.exit(0);
@@ -236,10 +126,17 @@ const metadata = () => {
 };
 const loadBefore = readLoad();
 
-const rows = [];
-for (const [name, entry] of Object.entries(workloads)) {
+const rows = [], rebuild = [], dev = [], typecheck = [];
+const save = () => {
+  mkdirSync(dirname(resultsFile), { recursive: true });
+  const extra = { ...(doRebuild ? { rebuild, rebuildModes, edits } : {}), ...(doDev ? { dev, devNotes: noDevServer } : {}), ...(doCheck ? { typecheck } : {}) };
+  writeFileSync(resultsFile, JSON.stringify({ schema: 3, ...metadata(), load: { before: loadBefore, after: readLoad() }, env, runs, modes: modeNames, argv: process.argv.slice(2), rows, ...extra }, null, 1));
+};
+const fmt = (r) => (r.failed ? `FAILED ${r.failed}` : `med ${r.med?.toFixed(1)} ms  min ${r.min?.toFixed(1)} ms  rss ${r.rss?.toFixed(0)} MB`);
+for (const [name, meta] of Object.entries(workloads)) {
+  const entry = meta.entry;
   if (only.length && !only.includes(name)) continue;
-  for (const mode of modeNames) {
+  for (const mode of noBuild ? [] : modeNames) {
     const { minify, map } = allModes[mode];
     let reference = null;
     for (const tool of selected) {
@@ -247,7 +144,7 @@ for (const [name, entry] of Object.entries(workloads)) {
       rmSync(dir, { recursive: true, force: true });
       mkdirSync(dir, { recursive: true });
       const out = join(dir, 'out.mjs');
-      const spec = tools[tool]({ entry, out, minify, map, dir });
+      const spec = tools[tool]({ entry, out, minify, map, dir, meta });
       const times = [], rss = [];
       let failed = null;
       for (let i = -1; i < runs; i++) {
@@ -268,11 +165,12 @@ for (const [name, entry] of Object.entries(workloads)) {
         else failed = `no output at ${spec.produced}`;
       }
       let runs_ = '-';
-      if (!failed && runnable.has(name)) {
+      if (!failed && meta.run) {
         const r = spawnSync(process.execPath, [out], { encoding: 'utf8', timeout: 60000 });
         const printed = r.status === 0 ? r.stdout : null;
-        if (printed !== null && reference === null) reference = printed;
-        runs_ = printed === null ? 'fails' : printed === reference ? 'same' : 'DIFFERENT';
+        if (printed !== null && printed.trim() !== '' && reference === null) reference = printed;
+        // A program that prints nothing, where the others print something, does not count as having worked.
+        runs_ = printed === null || printed.trim() === '' ? 'fails' : printed === reference ? 'same' : 'DIFFERENT';
       }
       const size = failed ? null : sizeOf(dir);
       const row = { name, mode, tool, min: failed ? null : Math.min(...times), med: failed ? null : median(times), rss: failed ? null : Math.max(...rss) / 1024, size, runs: runs_, failed };
@@ -280,10 +178,40 @@ for (const [name, entry] of Object.entries(workloads)) {
       console.log(`${name.padEnd(9)} ${mode.padEnd(10)} ${tool.padEnd(8)} ${failed ? 'FAILED ' + failed : `med ${row.med.toFixed(0).padStart(5)} ms  min ${row.min.toFixed(0).padStart(5)} ms  rss ${row.rss.toFixed(0).padStart(4)} MB  out ${(size.bytes / 1024).toFixed(0).padStart(6)} KB  gz ${(size.gzip / 1024).toFixed(0).padStart(5)} KB  runs ${runs_}`}`);
     }
   }
+  save();
+  if (doRebuild) {
+    for (const mode of rebuildModes) {
+      for (const tool of selected) {
+        const r = await measureRebuild({ tool, name, meta, mode, tools, workDir, edits });
+        rebuild.push({ name, mode, tool, ...r });
+        console.log(`${name.padEnd(9)} rebuild ${mode.padEnd(7)} ${tool.padEnd(8)} ${r.unsupported ? 'n/a: ' + r.unsupported : r.failed && !r.times.length ? 'FAILED ' + r.failed : `first build ${r.start?.toFixed(0)} ms, rebuild ${fmt(r)}${r.failed ? ` (${r.failed})` : ''}`}`);
+        save();
+      }
+    }
+  }
+  if (doDev && meta.web) {
+    for (const tool of selected) {
+      if (!devTools[tool]) continue;
+      const r = await measureDev({ tool, name, meta, workDir, runs, edits });
+      dev.push({ name, tool, ...r });
+      console.log(`${name.padEnd(9)} dev     ${tool.padEnd(8)} ${r.failed ? 'FAILED ' + r.failed : `start med ${r.startMed?.toFixed(0)} ms (${r.files} files), hmr med ${r.hmrMed?.toFixed(1) ?? '-'} ms ${r.hmrType ?? ''}${r.hmrFailed ? ` (${r.hmrFailed})` : ''}, rss ${r.rss?.toFixed(0)} MB`}`);
+      save();
+    }
+  }
+  if (doCheck && meta.ts) {
+    const base = await measureTsc({ name, meta, runs });
+    typecheck.push(base);
+    console.log(`${name.padEnd(9)} check   tsc      ${base.withCheck.failed ?? fmt(base.withCheck)}`);
+    for (const tool of selected) {
+      if (!setups[tool]) continue;
+      const r = await measureCheck({ tool, name, meta, tools, workDir, runs });
+      typecheck.push(r);
+      console.log(`${name.padEnd(9)} check   ${tool.padEnd(8)} ${r.failed ?? `build ${fmt(r.buildOnly)} | with check ${fmt(r.withCheck)}`}`);
+      save();
+    }
+  }
 }
-const loadAfter = readLoad();
-mkdirSync(dirname(resultsFile), { recursive: true });
-writeFileSync(resultsFile, JSON.stringify({ schema: 2, ...metadata(), load: { before: loadBefore, after: loadAfter }, env, runs, modes: modeNames, argv: process.argv.slice(2), rows }, null, 1));
+save();
 
 // ---- tables ----
 const names = Object.keys(workloads).filter((w) => rows.some((r) => r.name === w));

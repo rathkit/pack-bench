@@ -25,7 +25,7 @@ RUN mkdir -p /opt/pnpm && tar -xzf /tmp/pnpm-x64.tar.gz -C /opt/pnpm && rm /tmp/
 WORKDIR /bench
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile --ignore-scripts && pnpm store prune
-COPY run.mjs generate.mjs ./
+COPY run.mjs lib.mjs procs.mjs rebuild.mjs dev.mjs typecheck.mjs generate.mjs ./
 COPY inputs/ inputs/
 COPY tools/ tools/
 # The generated workloads are deterministic, so they are made once, here, under /bench (Parcel reads `targets` from /bench/package.json).
