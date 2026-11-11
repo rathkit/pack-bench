@@ -42,8 +42,38 @@ benchmark, or `pnpm install`, outside it.
   start-up. `launch` in the results records this (`direct`; `shim` is the older method).
 - **Cold:** every run is one fresh container (`--rm`), so no tool keeps a cache from one run to the next. The operating
   system's page cache is warm, because the single warm-up run is part of the method. Outputs go to a RAM disk, so disk speed is out of the timing for every tool alike.
-- **Workloads:** the TypeScript 5.9 compiler, three.js, lodash-es (`export *`), React with react-dom/server, an rxjs pipeline,
-  and two generated apps (1,500 JavaScript modules and 500 TypeScript modules, `generate.mjs`, deterministic).
+- **Workloads (15):** the TypeScript 5.9 compiler, three.js, lodash-es (`export *`), React with react-dom/server, an rxjs
+  pipeline, and these, each written for this repository and installed with its framework from the lockfile:
+  a Preact app (TSX, hooks and context, rendered with preact-render-to-string), a Vue 3 app (render functions, so no compiler
+  plugin; server-rendered), a Solid app (no JSX, so no compiler plugin; server-rendered), a Svelte 5 app (the components
+  are compiled to server code by Svelte's own compiler when the image is built, so the compiler's time is not measured), a
+  monorepo-style TypeScript app (four workspace packages linked into `node_modules/@mono` that name their TypeScript source in
+  `exports`, and one app), and three library programs (date-fns, Zod, D3), plus two generated apps (1,500 JavaScript modules
+  and 500 TypeScript modules, `generate.mjs`, deterministic). The framework apps are small programs that use the framework
+  the way an application does; they are not open-source applications taken from elsewhere. Solid is built for the `node`
+  export condition (Pack and Vite are given it; the others add it for a Node build). Parcel 2 is run with its
+  `packageExports` resolver option on (`package.json`), without which it cannot resolve packages that only have `exports`.
+- **Warm rebuild (`--rebuild`):** each tool runs in its own watch mode on a writable copy of the project (in plain and in minified
+  mode); the first build is waited for, then one project file is changed again and again (7 times), and the time from writing the
+  file to the output holding the change is taken (the output file is polled every 2 ms). Each tool uses its default watcher:
+  Pack polls the files it read every 80 ms and waits 40 ms more for writes to settle, so its figure includes up to 120 ms of that;
+  the others use the operating system's file events, except esbuild, which scans for changes in rounds. Parcel 2 has no minified
+  watch mode and shows n/a there.
+- **Server start and HMR latency (`--dev`):** for the tools that have a development server (Pack `serve --hmr`, esbuild
+  `--serve`, Vite, webpack with webpack-dev-server, rspack with `rspack serve`, Parcel 2 and Parcel 3 `serve`; rolldown and Rollup
+  have none). No browser is used: a page load is imitated by asking for the page, the scripts it names and (for Vite, which does not bundle) every module those
+  import, six requests at a time; the server is started when all are answered. HMR latency is from writing a change to a module that
+  already accepts its own update to the update notice on the tool's own event channel; what the page then does with it is not
+  measured. The TypeScript compiler workload is not served (it needs Node's own modules).
+- **Build plus type check (`--typecheck`):** for the TypeScript workloads only, a separate table. Each tool is set up the way it is commonly used:
+  a separate `tsc --noEmit` (esbuild, rolldown, Parcel 2 and 3; Vite's starter template runs `tsc -b` before `vite build`), the
+  checker plugin of its own bundler (`ts-checker-rspack-plugin` for rspack, `fork-ts-checker-webpack-plugin` for webpack, both
+  with `async: false`, which is their production-build default, so the build waits for the check), or `@rollup/plugin-typescript`
+  with checking on (its default). The build is the minified one. Wall time is from the start of the first process to the exit of the
+  last, and peak memory is the largest sum of the resident sizes of every process of the setup at one moment (sampled every 10 ms, and never
+  less than the kernel's peak of the largest process); shared pages count once per process, so it is an upper bound. The build-only
+  column of the same table is measured the same way, from the same inputs and the project's own tsconfig, so the difference is the cost of the
+  check. Pack has no type checker, so its row says so and has no figure.
 
 ## Caveats
 
@@ -70,7 +100,9 @@ HOST_NOTE="WSL2, Docker Desktop 29.9.2, laptop on AC" \
 ```
 
 `run.mjs` options: `--runs N`, `--tools`, `--env`, `--modes`, `--markdown`, `--work DIR`, `--results FILE`, `--list-tools`, and
-workload names (`ts5 three lodash react rxjs app1500 tsapp500`). Results go to `results/<stamp>.json`.
+workload names (`ts5 three lodash react rxjs app1500 tsapp500 preact vue solid svelte monorepo datefns zod d3`), and the extra measurements
+`--rebuild` (with `--rebuild-modes plain,minify`), `--dev`, `--typecheck` and `--edits N` (default 7); `--no-build` leaves out the build table.
+The results file is rewritten after every workload, so a crash keeps what was measured. Results go to `results/<stamp>.json`.
 
 `CONTAINER=podman` works with the same flags (rootless: `--userns=keep-id`). If Podman refuses `--cpuset-cpus`, remove that flag from
 `container/run.sh` in your copy and say so in `HOST_NOTE`. `CPUSET` sets the CPUs (default `2-9`); `HOST_NOTE` goes into the results.
@@ -92,10 +124,12 @@ node tools/report.mjs published/<file>.json --into ../pack/docs/benchmarks.md
 Check out the bench commit named in the figure, build Pack at the commit it names, and run with the same `--tools` and the same
 `CPUSET`. Output sizes are deterministic and must match cell for cell; times should keep their order.
 
-## Results schema (`schema: 2`)
+## Results schema (`schema: 3`)
 
 `date`, `pack.{version,sha256,commit}`, `bench.{commit,imageId,launch,rootfs}`, `node`, `tools.{esbuild,rolldown,rspack,vite,parcel2,parcel3}` (and `tools.{webpack,rollup}` when those were run),
-`machine.{cpu,logicalCpus,cpuset,memoryLimit,kernel,note}`, `load.{before,after}` (`/proc/loadavg`), `env`, `runs`, `modes`, `argv`, `rows`.
+`machine.{cpu,logicalCpus,cpuset,memoryLimit,kernel,note}`, `load.{before,after}` (`/proc/loadavg`), `env`, `runs`, `modes`, `argv`, `rows`,
+and, when the flags were given, `rebuild` (with `rebuildModes`, `edits`), `dev` (with `devNotes`) and `typecheck`, each with the versions of what it used
+(`tools.{typescript,tsCheckerRspackPlugin,forkTsCheckerWebpackPlugin,webpackDevServer,rspackDevServer}`). Schema 2 files (build tables only) are still accepted.
 `tools/check-results.mjs` fails on any missing field, on fewer than 7 runs, or on a `bench.commit` that is not on `origin/main`.
 
 ## Bumping a version or a digest

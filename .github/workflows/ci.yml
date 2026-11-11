@@ -30,7 +30,7 @@ jobs:
           runtime: node@26
           working-directory: .
           install: false
-      - run: node --check run.mjs && node --check generate.mjs && node --check tools/report.mjs && node --check tools/check-results.mjs
+      - run: node --check run.mjs && node --check lib.mjs && node --check procs.mjs && node --check rebuild.mjs && node --check dev.mjs && node --check typecheck.mjs && node --check generate.mjs && node --check tools/report.mjs && node --check tools/check-results.mjs
       - run: node tools/report.mjs --self-test
       - run: sh -n container/run.sh && sh -n container/build-pack.sh
       # The image builds from the pinned digests and the committed lockfile as it is; every tool answers with no network.

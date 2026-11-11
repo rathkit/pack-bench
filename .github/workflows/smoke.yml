@@ -38,7 +38,13 @@ jobs:
         env:
           HOST_NOTE: GitHub-hosted runner, smoke test, not for publication
           CPUSET: 0-3
-      - run: node tools/check-results.mjs "$(ls results/*.json | head -1)" --smoke
+      # The warm-rebuild, development-server and type-check measurements, once, on two workloads and three tools.
+      - name: One rebuild, one server start, one type check
+        run: container/run.sh --pack-bin "$RUNNER_TEMP/rkp/rkp" -- --runs 1 --no-build --rebuild --rebuild-modes plain --dev --typecheck --edits 1 --tools rathkit,esbuild,vite datefns tsapp500
+        env:
+          HOST_NOTE: GitHub-hosted runner, smoke test, not for publication
+          CPUSET: 0-3
+      - run: for f in results/*.json; do node tools/check-results.mjs "$f" --smoke; done
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: smoke-results

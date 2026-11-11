@@ -25,7 +25,24 @@ export const problems = (results, { smoke = false, noGit = false } = {}) => {
       out.push(`missing: ${path}`);
     }
   }
-  if (results.schema !== 2) out.push(`schema is ${results.schema}, expected 2`);
+  // Schema 3 adds the optional sections `rebuild`, `dev` and `typecheck` (and the versions of what they use); `rows` is the same as in schema 2.
+  if (results.schema !== 2 && results.schema !== 3) out.push(`schema is ${results.schema}, expected 2 or 3`);
+  const has = (key) => Array.isArray(results[key]) && results[key].length > 0;
+  const need = (path, why) => {
+    const v = dig(results, path);
+    if (v === undefined || v === null || v === '') out.push(`missing: ${path} (${why})`);
+  };
+  if (has('rebuild')) {
+    need('edits', 'rebuild section');
+    need('rebuildModes', 'rebuild section');
+  }
+  if (has('dev')) {
+    for (const [tool, path] of [['webpack', 'tools.webpackDevServer'], ['rspack', 'tools.rspackDevServer']]) if (results.dev.some((r) => r.tool === tool)) need(path, 'dev section');
+  }
+  if (has('typecheck')) {
+    need('tools.typescript', 'typecheck section');
+    for (const [tool, path] of [['webpack', 'tools.forkTsCheckerWebpackPlugin'], ['rspack', 'tools.tsCheckerRspackPlugin']]) if (results.typecheck.some((r) => r.tool === tool)) need(path, 'typecheck section');
+  }
   if (!smoke) {
     if (!(results.runs >= 7)) out.push(`runs is ${results.runs}, a published figure needs 7 or more`);
     const commit = results.bench?.commit;
