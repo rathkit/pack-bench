@@ -11,7 +11,7 @@ export const RK = process.env.RATHKIT_PACK_BIN ?? join(here, '..', 'target', 're
 // build-plus-check table); `jsx` (the JSX import source); `edit` (the project file that the rebuild and HMR measurements change); `web` (can be served to a browser,
 // that is, it does not need Node's own modules). Names are the keys of results.json rows.
 export const workloads = {
-  ts5: { entry: 'inputs/ts5.js', run: true, edit: 'inputs/ts5.js', web: false },
+  ts5: { entry: 'inputs/ts5.js', run: true, edit: 'inputs/ts5.js', web: false, webNote: 'the TypeScript compiler is a library for Node with no page to serve: it needs fs, path, os and other Node modules, which each tool would have to be set up to stub differently' },
   three: { entry: 'inputs/three.js', run: false, edit: 'inputs/three.js', web: true },
   lodash: { entry: 'inputs/lodash.js', run: false, edit: 'inputs/lodash.js', web: true },
   react: { entry: 'inputs/react.js', run: true, edit: 'inputs/react.js', web: true },

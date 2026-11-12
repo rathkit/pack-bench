@@ -64,7 +64,11 @@ benchmark, or `pnpm install`, outside it.
   have none). No browser is used: a page load is imitated by asking for the page, the scripts it names and (for Vite, which does not bundle) every module those
   import, six requests at a time; the server is started when all are answered. HMR latency is from writing a change to a module that
   already accepts its own update to the update notice on the tool's own event channel; what the page then does with it is not
-  measured. The TypeScript compiler workload is not served (it needs Node's own modules).
+  measured. The TypeScript compiler workload is not served: it is a library for Node with no page, it needs `fs`, `path`, `os` and other
+  Node modules, and each tool would have to be set up to stub them in its own way. Parcel is given the `packageExports` resolver
+  setting the build uses (without it it cannot resolve packages that only have `exports`). webpack and rspack leave `node:` imports
+  as empty externals (webpack cannot read them for a browser target, and the Svelte and Solid server runtimes name some), and the
+  notice that ends a rebuild with warnings (`warnings`) counts like `ok`, since the dev server's client applies the update after either.
 - **Build plus type check (`--typecheck`):** for the TypeScript workloads only, a separate table. Each tool is set up the way it is commonly used:
   a separate `tsc --noEmit` (esbuild, rolldown, Parcel 2 and 3; Vite's starter template runs `tsc -b` before `vite build`), the
   checker plugin of its own bundler (`ts-checker-rspack-plugin` for rspack, `fork-ts-checker-webpack-plugin` for webpack, both

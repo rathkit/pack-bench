@@ -26,7 +26,7 @@ const webpackLike = ({ entry, root, dir, port, meta, rules, mode = 'development'
   writeFileSync(join(dir, 'www', 'index.html'), readFileSync(join(root, 'index.html')));
   writeFileSync(
     config,
-    `export default { mode: 'development', context: ${JSON.stringify(root)}, entry: ${JSON.stringify(join(root, entry))}, target: 'web', resolve: { extensions: ['.ts', '.tsx', '.js', '.mjs', '.json'] }, module: { rules: ${rules} }, output: { path: ${JSON.stringify(join(dir, 'dist'))}, filename: 'bundle.js', publicPath: '/' }, devServer: { host: ${JSON.stringify(HOST)}, port: ${port}, hot: true, open: false, allowedHosts: 'all', static: { directory: ${JSON.stringify(join(dir, 'www'))}, watch: false }, client: { overlay: false, logging: 'none' } }, stats: 'errors-only', infrastructureLogging: { level: 'error' } };\n`,
+    `export default { mode: 'development', context: ${JSON.stringify(root)}, entry: ${JSON.stringify(join(root, entry))}, target: 'web', externals: [({ request }, done) => (/^node:/.test(request) ? done(null, '{}', 'var') : done())], resolve: { extensions: ['.ts', '.tsx', '.js', '.mjs', '.json'] }, module: { rules: ${rules} }, output: { path: ${JSON.stringify(join(dir, 'dist'))}, filename: 'bundle.js', publicPath: '/' }, devServer: { host: ${JSON.stringify(HOST)}, port: ${port}, hot: true, open: false, allowedHosts: 'all', static: { directory: ${JSON.stringify(join(dir, 'www'))}, watch: false }, client: { overlay: false, logging: 'none' } }, stats: 'errors-only', infrastructureLogging: { level: 'error' } };\n`,
   );
   return config;
 };
@@ -40,8 +40,8 @@ export const devTools = {
     writeFileSync(config, `export default { root: ${JSON.stringify(root)}, configFile: false, logLevel: 'error', cacheDir: ${JSON.stringify(join(dir, '.vite'))}, server: { host: ${JSON.stringify(HOST)}, port: ${port}, strictPort: true, open: false } };\n`);
     return { spec: { cmd: process.execPath, args: [pkgBin('vite', 'vite'), '--config', config] }, crawl: true, script: `/${entry}`, channel: { kind: 'ws', protocol: 'vite-hmr', token: true, hit: (m) => ['update', 'full-reload'].includes(m.type) } };
   },
-  webpack: ({ entry, root, dir, port, meta }) => ({ spec: { cmd: process.execPath, args: [pkgBin('webpack-cli', 'webpack-cli'), 'serve', '--config', webpackLike({ entry, root, dir, port, meta, rules: swc(createRequireSwc(), meta) })] }, script: '/bundle.js', channel: { kind: 'ws', path: '/ws', hit: (m) => m.type === 'ok' || m.type === 'static-changed' } }),
-  rspack: ({ entry, root, dir, port, meta }) => ({ spec: { cmd: process.execPath, args: [pkgBin('@rspack/cli', 'rspack'), 'serve', '--config', webpackLike({ entry, root, dir, port, meta, rules: swc('builtin:swc-loader', meta, ", type: 'javascript/auto'") })] }, script: '/bundle.js', channel: { kind: 'ws', path: '/ws', hit: (m) => m.type === 'ok' || m.type === 'static-changed' } }),
+  webpack: ({ entry, root, dir, port, meta }) => ({ spec: { cmd: process.execPath, args: [pkgBin('webpack-cli', 'webpack-cli'), 'serve', '--config', webpackLike({ entry, root, dir, port, meta, rules: swc(createRequireSwc(), meta) })] }, script: '/bundle.js', channel: { kind: 'ws', path: '/ws', hit: (m) => ['ok', 'warnings', 'static-changed'].includes(m.type) } }),
+  rspack: ({ entry, root, dir, port, meta }) => ({ spec: { cmd: process.execPath, args: [pkgBin('@rspack/cli', 'rspack'), 'serve', '--config', webpackLike({ entry, root, dir, port, meta, rules: swc('builtin:swc-loader', meta, ", type: 'javascript/auto'") })] }, script: '/bundle.js', channel: { kind: 'ws', path: '/ws', hit: (m) => ['ok', 'warnings', 'static-changed'].includes(m.type) } }),
   parcel2: ({ dir, port }) => ({ spec: { cmd: process.execPath, args: [join(here, 'node_modules/parcel2/lib/bin.js'), 'serve', 'index.html', '--port', String(port), '--host', HOST, '--cache-dir', join(dir, '.parcel-cache'), '--dist-dir', join(dir, 'dist'), '--no-autoinstall', '--log-level', 'error'] }, script: null, channel: { kind: 'ws', path: '/', hit: (m) => m.type === 'update' || m.type === 'reload' } }),
   parcel3: ({ dir, port }) => ({ spec: { cmd: parcel3Binary(), args: ['serve', 'index.html', '--port', String(port), '--host', HOST, '--dist-dir', join(dir, 'dist'), '--log-level', 'error'] }, script: null, channel: { kind: 'ws', path: '/', hit: (m) => m.type === 'update' || m.type === 'reload' } }),
 };
@@ -166,7 +166,9 @@ export const measureDev = async ({ tool, name, meta, workDir, runs = 7, edits = 
   const dir = join(workDir, 'dev-out', key);
   const result = { start: [], hmr: [], hmrType: null, files: null, rss: null, failed: null };
   copyProject(meta, proj);
-  if (tool.startsWith('parcel')) writeFileSync(join(proj, 'package.json'), JSON.stringify({ name: 'bench-dev', private: true }) + '\n');
+  // Parcel reads its settings from package.json. The build's `targets` would make it build for Node, so the page gets none of them, but the resolver setting
+  // the build uses (conditional `exports` of packages, which preact, solid, svelte and the workspace packages need) is the same here.
+  if (tool.startsWith('parcel')) writeFileSync(join(proj, 'package.json'), JSON.stringify({ name: 'bench-dev', private: true, '@parcel/resolver-default': { packageExports: true } }) + '\n');
   writeFileSync(join(proj, 'index.html'), html(meta, meta.entry, tool));
   const editFile = join(proj, meta.edit);
   const untouched = readFileSync(editFile, 'utf8');
@@ -204,7 +206,10 @@ export const measureDev = async ({ tool, name, meta, workDir, runs = 7, edits = 
               if (!hit) await sleep(1);
             }
             if (!hit) {
-              result.hmrFailed = `edit ${k}: no update notice within ${editMs / 1000} s${events.length ? ` (saw ${[...new Set(events.map((e) => e.message.type ?? e.message.event))].join(', ')})` : ''}`;
+              // What the tool reported instead (webpack and rspack send the compile errors and warnings over the same channel).
+              const said = (events.find((e) => e.message.type === 'errors') ?? events.find((e) => e.message.type === 'warnings'))?.message.data?.[0];
+              const text = typeof said === 'string' ? said : said?.message;
+              result.hmrFailed = `edit ${k}: no update notice within ${editMs / 1000} s${events.length ? ` (saw ${[...new Set(events.map((e) => e.message.type ?? e.message.event))].join(', ')}${text ? `: ${text.replace(/\s+/g, ' ').slice(0, 200)}` : ''})` : ''}`;
               break;
             }
             result.hmr.push(hit.at - t);

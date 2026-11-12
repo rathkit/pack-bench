@@ -98,12 +98,22 @@ const extraSections = (res) => {
   if (res.dev?.length) {
     const tools = Object.keys(labels).filter((t) => res.dev.some((r) => r.tool === t));
     const get = (w, t) => res.dev.find((r) => r.name === w && r.tool === t);
-    const rows = names.filter((n) => res.dev.some((r) => r.name === n));
+    const skipped = names.filter((n) => res.devSkipped?.[n]);
+    const rows = names.filter((n) => skipped.includes(n) || res.dev.some((r) => r.name === n));
     parts.push('', '## Development server: start and HMR latency (median ms, lower is better)', '', 'Start, until the page and every module it imports have been answered:', '', `| | ${tools.map((t) => labels[t]).join(' | ')} |`, `|---|${tools.map(() => '---').join('|')}|`);
-    for (const w of rows) parts.push(`| ${workloadNames[w]} | ${tools.map((t) => { const r = get(w, t); return !r || !r.start?.length ? 'failed' : fmtMs(r.startMed); }).join(' | ')} |`);
+    for (const w of rows) parts.push(`| ${workloadNames[w]} | ${tools.map((t) => { const r = get(w, t); return skipped.includes(w) ? 'n/a' : !r || !r.start?.length ? 'failed' : fmtMs(r.startMed); }).join(' | ')} |`);
     parts.push('', 'HMR latency, from writing a change to a module that accepts it to the update notice (the kind of notice is in the second table):', '', `| | ${tools.map((t) => labels[t]).join(' | ')} |`, `|---|${tools.map(() => '---').join('|')}|`);
-    for (const w of rows) parts.push(`| ${workloadNames[w]} | ${tools.map((t) => { const r = get(w, t); return !r || !r.hmr?.length ? (r?.hmrFailed ? 'failed' : 'none') : fmtMs(r.hmrMed) + (r.hmrFailed ? '*' : ''); }).join(' | ')} |`);
+    for (const w of rows) parts.push(`| ${workloadNames[w]} | ${tools.map((t) => { const r = get(w, t); return skipped.includes(w) ? 'n/a' : !r || !r.hmr?.length ? (r?.hmrFailed ? 'failed' : 'none') : fmtMs(r.hmrMed) + (r.hmrFailed ? '*' : ''); }).join(' | ')} |`);
     parts.push('', `Notice kinds: ${tools.map((t) => `${labels[t]} ${[...new Set(res.dev.filter((r) => r.tool === t && r.hmrType).map((r) => r.hmrType))].join('/') || 'none'}`).join('; ')}. Without a development server: ${Object.entries(res.devNotes ?? {}).map(([t, n]) => `${labels[t] ?? t} (${n})`).join('; ')}.`);
+    // Cells that failed, with the reason (the tool's own message is kept in the results file).
+    const reasons = {
+      'parcel2:app1500': 'Parcel 2 stops with an internal assertion error in its bundler',
+      'parcel2:svelte': 'Parcel 2 needs the `buffer` polyfill package for a Node global that Svelte\'s server runtime uses, and package installs are off in the container',
+      'parcel3:svelte': 'Parcel 3 needs the `buffer` polyfill package for a Node global that Svelte\'s server runtime uses, and package installs are off in the container',
+    };
+    const failedCells = res.dev.filter((r) => r.failed || (!r.hmr?.length && r.hmrFailed));
+    if (failedCells.length) parts.push('', `Failed: ${failedCells.map((r) => `${workloadNames[r.name]} on ${labels[r.tool]} (${reasons[`${r.tool}:${r.name}`] ?? String(r.failed ?? r.hmrFailed).slice(0, 120)})`).join('; ')}.`);
+    if (skipped.length) parts.push('', `Not measured: ${skipped.map((w) => `${workloadNames[w]} (${res.devSkipped[w]})`).join('; ')}.`);
   }
   if (res.typecheck?.length) {
     const checked = names.filter((n) => res.typecheck.some((r) => r.name === n));

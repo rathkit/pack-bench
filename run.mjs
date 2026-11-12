@@ -129,7 +129,7 @@ const loadBefore = readLoad();
 const rows = [], rebuild = [], dev = [], typecheck = [];
 const save = () => {
   mkdirSync(dirname(resultsFile), { recursive: true });
-  const extra = { ...(doRebuild ? { rebuild, rebuildModes, edits } : {}), ...(doDev ? { dev, devNotes: noDevServer } : {}), ...(doCheck ? { typecheck } : {}) };
+  const extra = { ...(doRebuild ? { rebuild, rebuildModes, edits } : {}), ...(doDev ? { dev, devNotes: noDevServer, devSkipped: Object.fromEntries(Object.entries(workloads).filter(([n, m]) => !m.web && (!only.length || only.includes(n))).map(([n, m]) => [n, m.webNote ?? 'not served to a browser'])) } : {}), ...(doCheck ? { typecheck } : {}) };
   writeFileSync(resultsFile, JSON.stringify({ schema: 3, ...metadata(), load: { before: loadBefore, after: readLoad() }, env, runs, modes: modeNames, argv: process.argv.slice(2), rows, ...extra }, null, 1));
 };
 const fmt = (r) => (r.failed ? `FAILED ${r.failed}` : `med ${r.med?.toFixed(1)} ms  min ${r.min?.toFixed(1)} ms  rss ${r.rss?.toFixed(0)} MB`);
