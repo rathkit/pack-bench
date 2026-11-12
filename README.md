@@ -67,7 +67,7 @@ benchmark, or `pnpm install`, outside it.
   measured. The TypeScript compiler workload is not served: it is a library for Node with no page, it needs `fs`, `path`, `os` and other
   Node modules, and each tool would have to be set up to stub them in its own way. Parcel is given the `packageExports` resolver
   setting the build uses (without it it cannot resolve packages that only have `exports`). webpack and rspack leave `node:` imports
-  as empty externals (webpack cannot read them for a browser target, and the Svelte and Solid server runtimes name some), and the
+  as empty externals (webpack cannot read them for a browser target, and Svelte's server runtime names one), and the
   notice that ends a rebuild with warnings (`warnings`) counts like `ok`, since the dev server's client applies the update after either.
 - **Build plus type check (`--typecheck`):** for the TypeScript workloads only, a separate table. Each tool is set up the way it is commonly used:
   a separate `tsc --noEmit` (esbuild, rolldown, Parcel 2 and 3; Vite's starter template runs `tsc -b` before `vite build`), the
